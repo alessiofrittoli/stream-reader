@@ -26,46 +26,26 @@ class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 		this.closed = false
 	}
 
-	
+
 	/**
-	 * Releases the lock on the reader.
+	 * Read on-demand stream data.
 	 * 
-	 * Emits the `error` event.
-	 * 
-	 * @param error The `Error` occured.
-	 * @returns `StreamReader<T>` for chaining purposes.
+	 * @returns A Array of `T`.
 	 */
-	private error( error: Error )
+	async read()
 	{
-		this.closed = true
-		this.reader.releaseLock()
-		this.removeAllListeners( 'read' )
-		this.removeAllListeners( 'close' )
-		if ( ! this.listenerCount( 'error' ) ) {
-			throw error
+		const chunks: Awaited<T>[] = []
+		try {
+			for await ( const chunk of this.readChunks() ) {
+				chunks.push( chunk )
+				this.emit( 'read', chunk )
+			}
+			this.close( chunks )
+			return chunks
+		} catch ( error ) {
+			this.error( error as Error )
 		}
-		this.emit( 'error', error )
-		return this
-	}
-
-
-	/**
-	 * Releases the lock on the reader.
-	 * 
-	 * Emits the `close` event.
-	 * 
-	 * @param chunks The stream final chunks array.
-	 * @returns `StreamReader<T>` for chaining purposes.
-	 */
-	close( chunks: Awaited<T>[] )
-	{
-		if ( this.closed ) return this
-		this.closed = true
-		this.reader.releaseLock()
-		this.emit( 'close', chunks )
-		this.removeAllListeners( 'read' )
-		this.removeAllListeners( 'close' )
-		return this
+		return chunks
 	}
 
 
@@ -93,7 +73,7 @@ class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 	 * ```
 	 * @returns An async iterable object for consuming chunks of data.
 	 */
-	async *getIterator()
+	async *readChunks()
 	{
 		const { reader } = this
 		let readResult = await reader.read()
@@ -103,26 +83,46 @@ class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 		}
 	}
 
+	
+	/**
+	 * Releases the lock on the reader.
+	 * 
+	 * Emits the `close` event.
+	 * 
+	 * @param chunks The stream final chunks array.
+	 * @returns `StreamReader<T>` for chaining purposes.
+	 */
+	close( chunks: Awaited<T>[] )
+	{
+		if ( this.closed ) return this
+		this.closed = true
+		this.reader.releaseLock()
+		this.emit( 'close', chunks )
+		this.removeAllListeners( 'read' )
+		this.removeAllListeners( 'close' )
+		return this
+	}
+
 
 	/**
-	 * Read on-demand stream data.
+	 * Releases the lock on the reader.
 	 * 
-	 * @returns A Array of `T`.
+	 * Emits the `error` event.
+	 * 
+	 * @param error The `Error` occured.
+	 * @returns `StreamReader<T>` for chaining purposes.
 	 */
-	async read()
+	private error( error: Error )
 	{
-		const chunks: Awaited<T>[] = []
-		try {
-			for await ( const chunk of this.getIterator() ) {
-				chunks.push( chunk )
-				this.emit( 'read', chunk )
-			}
-			this.close( chunks )
-			return chunks
-		} catch ( error ) {
-			this.error( error as Error )
+		this.closed = true
+		this.reader.releaseLock()
+		this.removeAllListeners( 'read' )
+		this.removeAllListeners( 'close' )
+		if ( ! this.listenerCount( 'error' ) ) {
+			throw error
 		}
-		return chunks
+		this.emit( 'error', error )
+		return this
 	}
 
 
