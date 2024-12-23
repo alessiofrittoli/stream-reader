@@ -27,9 +27,18 @@
 	"files": [
 		"dist"
 	],
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.cjs"
+		},
+		"./types": {
+			"types": "./dist/types.d.ts"
+		}
+	},
 	"sideEffects": false,
 	"scripts": {
-		"build": "pnpm lint && pnpm test:ci && pnpm test:ci:jsdom && tsup",
+		"build": "pnpm lint && pnpm test:ci && tsup",
 		"build:watch": "tsup --watch",
 		"lint": "eslint",
 		"test": "jest --watchAll --verbose",
@@ -40,7 +49,8 @@
 		"test:coverage": "concurrently --prefix none --kill-others \"pnpm jest --watchAll --verbose --coverage\" \"pnpm test:serve-coverage\"",
 		"test:coverage:jsdom": "JSDOM=true pnpm test:coverage",
 		"test:jest": "pnpm test jest.test.ts",
-		"test:jest:jsdom": "JSDOM=true pnpm test:jest"
+		"test:jest:jsdom": "JSDOM=true pnpm test:jest",
+		"test:reader": "pnpm test reader.test.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^9.17.0",
