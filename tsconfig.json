@@ -8,14 +8,19 @@
 		"declaration": true,
 		"isolatedModules": true,
 		"outDir": "dist",
-		"target": "ESNext",
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
+		"target": "ES2017",
+		"lib": [ "dom", "dom.iterable", "esnext" ],
+		"allowJs": true,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
 		"skipLibCheck": true,
 		"downlevelIteration": true,
 		"noUncheckedIndexedAccess": true,
 		"strictPropertyInitialization": false,
 		"resolveJsonModule": true,
+		"jsx": "preserve",
+		"incremental": true,
+		"tsBuildInfoFile": ".tsbuildinfo",
 		"paths": {
 			"@/*": [ "./src/*" ]
 		}
