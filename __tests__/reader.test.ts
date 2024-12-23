@@ -23,15 +23,15 @@ describe( 'StreamReader', () => {
 
 	it( 'emit \'read\' Event when chunk is received', async () => {
 
-		const stream		= new TransformStream<Buffer>()
-		const writer		= stream.writable.getWriter()
-		const streamReader	= new StreamReader<Buffer>( stream.readable )
+		const stream	= new TransformStream<Buffer>()
+		const writer	= stream.writable.getWriter()
+		const reader	= new StreamReader<Buffer>( stream.readable )
 
 		streamData( writer )
 
 		const onRead: OnReadEventListener<Buffer> = jest.fn()
-		streamReader.on( 'read', onRead )
-		await streamReader.read()
+		reader.on( 'read', onRead )
+		await reader.read()
 		
 		expect( onRead ).toHaveBeenCalledTimes( 2 )
 		expect( onRead ).toHaveBeenCalledWith( expect.any( Buffer ) )
@@ -90,18 +90,7 @@ describe( 'StreamReader', () => {
 		reader.on( 'close', onClose )
 		
 		await reader.read()
-		
-		// const onClose2: OnCloseEventListener<Buffer> = jest.fn()
-		// reader.on( 'close', onClose2 )
-		
-		// try {
-		// 	await reader.read()
-		// // eslint-disable-next-line @typescript-eslint/no-unused-vars
-		// } catch ( error ) {
-		// 	//
-		// }
-
-		// expect( onClose2 ).toHaveBeenCalledTimes( 0 )
+	
 		expect( reader.listenerCount( 'read' ) ).toBe( 0 )
 		expect( reader.listenerCount( 'close' ) ).toBe( 0 )
 	} )
