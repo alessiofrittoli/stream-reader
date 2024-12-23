@@ -1,17 +1,5 @@
 import EventEmitter from 'events'
-
-/**
- * Event types emitted by the StreamReader.
- * @template T The type of data being read from the stream.
- */
-type StreamReaderEvents<T = unknown> = {
-	/** Emitted when a chunk of data is read from the stream. */
-	read: [ ReadableStreamDefaultController, boolean, T ]
-	/** Emitted when the stream is closed. */
-	close: [ ReadableStreamDefaultController ]
-	/** Emitted when an error occurs during reading. */
-	error: [ Error ]
-}
+import type { StreamGenerator, StreamReaderEvents } from './types'
 
 
 /**
@@ -25,6 +13,7 @@ class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 	/** Indicates whether the stream has been closed. */
 	closed: boolean
 
+	
 	/**
 	 * Creates an instance of `StreamReader`.
 	 * @param stream The input `ReadableStream` to read data from.
@@ -37,61 +26,46 @@ class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 		this.closed = false
 	}
 
-	/**
-	 * Creates a new `ReadableStream` that reads from the input stream and emits events.
-	 * @returns A `ReadableStream` that can be consumed.
-	 */
-	read()
-	{
-		return new ReadableStream<T>( {
-			start: this.pump
-		} )
-	}
-
-
-	/**
-	 * Reads data from the input stream and pushes it to the output stream.
-	 * Emits `read` and `error` events during the process.
-	 * @private
-	 * @param controller The `ReadableStreamDefaultController` controlling the output stream.
-	 * @returns A promise that resolves when the stream is fully read or an error occurs.
-	 */
-	private pump( controller: ReadableStreamDefaultController<T> ): Promise<void>
-	{
-		return (
-			this.reader.read()
-				.then( ( { done, value } ) => {
-
-					if ( done ) {
-						return this.close( controller )
-					}
-
-					this.emit( 'read', controller, done, value )
-					controller.enqueue( value )
-					return this.pump( controller )
-				} )
-				.catch( err => {
-					const error = err as Error
-					controller.error( error )
-					this.emit( 'error', error )
-					this.close( controller )
-				} )
-		)
-	}
-	
 	
 	/**
-	 * Closes the stream and releases the lock on the reader.
-	 * Emits the `close` event.
-	 * @param controller The `ReadableStreamDefaultController` controlling the output stream.
+	 * Releases the lock on the reader.
+	 * 
+	 * Emits the `error` event.
+	 * 
+	 * @param error The `Error` occured.
+	 * @returns `StreamReader<T>` for chaining purposes.
 	 */
-	close( controller: ReadableStreamDefaultController<T> )
+	private error( error: Error )
 	{
-		if ( this.closed ) return
-		this.emit( 'close', controller )
-		controller.close()
-		this.reader.releaseLock()
 		this.closed = true
+		this.reader.releaseLock()
+		this.removeAllListeners( 'read' )
+		this.removeAllListeners( 'close' )
+		if ( ! this.listenerCount( 'error' ) ) {
+			throw error
+		}
+		this.emit( 'error', error )
+		return this
+	}
+
+
+	/**
+	 * Releases the lock on the reader.
+	 * 
+	 * Emits the `close` event.
+	 * 
+	 * @param chunks The stream final chunks array.
+	 * @returns `StreamReader<T>` for chaining purposes.
+	 */
+	close( chunks: Awaited<T>[] )
+	{
+		if ( this.closed ) return this
+		this.closed = true
+		this.reader.releaseLock()
+		this.emit( 'close', chunks )
+		this.removeAllListeners( 'read' )
+		this.removeAllListeners( 'close' )
+		return this
 	}
 
 
@@ -119,19 +93,36 @@ class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 	 * ```
 	 * @returns An async iterable object for consuming chunks of data.
 	 */
-	readChunks()
+	async *getIterator()
 	{
 		const { reader } = this
-		return {
-			async* [ Symbol.asyncIterator ]()
-			{
-				let readResult = await reader.read()
-				while ( ! readResult.done ) {
-					yield readResult.value
-					readResult = await reader.read()
-				}
-			},
+		let readResult = await reader.read()
+		while ( ! readResult.done ) {
+			yield readResult.value
+			readResult = await reader.read()
 		}
+	}
+
+
+	/**
+	 * Read on-demand stream data.
+	 * 
+	 * @returns A Array of `T`.
+	 */
+	async read()
+	{
+		const chunks: Awaited<T>[] = []
+		try {
+			for await ( const chunk of this.getIterator() ) {
+				chunks.push( chunk )
+				this.emit( 'read', chunk )
+			}
+			this.close( chunks )
+			return chunks
+		} catch ( error ) {
+			this.error( error as Error )
+		}
+		return chunks
 	}
 
 
@@ -145,7 +136,7 @@ class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 	 * @param	iterator The Iterator to convert.
 	 * @returns	A new ReadableStream instance
 	 */
-	static iteratorToStream<T = unknown>( iterator: Generator<T, void, unknown> | AsyncGenerator<T, void, unknown> )
+	static generatorToReadableStream<T = unknown>( iterator: StreamGenerator<T> )
 	{
 		return (
 			new ReadableStream<T>( {
