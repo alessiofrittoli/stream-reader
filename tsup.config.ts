@@ -10,15 +10,9 @@ export default defineConfig( {
 	clean		: true,
 	treeshake	: true,
 	minify		: true,
-	outExtension( ctx ) {
-		if ( ctx.format === 'esm' ) {
-			return {
-				dts	: '.d.ts',
-				js	: '.mjs',
-			}
-		}
-		return {
-			js: '.cjs'
-		}
+	esbuildOptions( options, { format } ) {
+		if ( format !== 'cjs' ) return options
+		options.outExtension = { '.js': '.cjs' }
+		return options
 	},
 } )
