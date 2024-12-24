@@ -1,6 +1,6 @@
 {
 	"name": "@alessiofrittoli/stream-reader",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "Easly read pushed data from a Stream",
 	"author": {
 		"name": "Alessio Frittoli",
@@ -68,6 +68,6 @@
 		"ts-node": "^10.9.2",
 		"tsup": "^8.3.5",
 		"typescript": "^5.7.2",
-		"typescript-eslint": "^8.18.1"
+		"typescript-eslint": "^8.18.2"
 	}
 }
