@@ -54,7 +54,7 @@
 		"test:reader": "pnpm test reader.test.ts"
 	},
 	"devDependencies": {
-		"@alessiofrittoli/node-scripts": "^1.3.0",
+		"@alessiofrittoli/node-scripts": "^1.3.1",
 		"@eslint/js": "^9.17.0",
 		"@jest/globals": "^29.7.0",
 		"@types/jest": "^29.5.14",
