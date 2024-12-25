@@ -6,7 +6,7 @@ import type { StreamGenerator, StreamReaderEvents } from './types'
  * A utility class for reading from a `ReadableStream`.
  * @template T The type of data being read from the stream.
  */
-class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
+export class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 {
 	/** The reader obtained from the input `ReadableStream`. */
 	reader: ReadableStreamDefaultReader<T>
@@ -154,6 +154,3 @@ class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 		)
 	}
 }
-
-
-export default StreamReader

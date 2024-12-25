@@ -29,6 +29,7 @@
 	],
 	"exports": {
 		".": {
+			"types": "./dist/index.d.ts",
 			"import": "./dist/index.mjs",
 			"require": "./dist/index.js"
 		},
@@ -39,8 +40,8 @@
 	"sideEffects": false,
 	"scripts": {
 		"build": "pnpm lint && pnpm test:ci && tsup",
-		"release": "node scripts/release.js --verbose --npm",
 		"build:watch": "tsup --watch",
+		"release": "node scripts/release.js --verbose --npm",
 		"lint": "eslint",
 		"test": "jest --watchAll --verbose",
 		"test:jsdom": "JSDOM=true pnpm test",
