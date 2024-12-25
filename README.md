@@ -2,6 +2,8 @@
 
 Version 1.0.0
 
+[![Coverage Status](https://coveralls.io/repos/github/alessiofrittoli/stream-reader/badge.svg)](https://coveralls.io/github/alessiofrittoli/stream-reader) [![Dependencies](https://img.shields.io/librariesio/release/npm/%40alessiofrittoli%2Fstream-reader)](https://libraries.io/npm/%40alessiofrittoli%2Fstream-reader)
+
 ## Easly read pushed data from a Stream
 
 ### Table of Contents

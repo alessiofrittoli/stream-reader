@@ -36,6 +36,7 @@
 			"parameters": {
 				"required_approving_review_count": 0,
 				"dismiss_stale_reviews_on_push": true,
+				"require_code_owner_review": true,
 				"require_last_push_approval": true,
 				"required_review_thread_resolution": true,
 				"automatic_copilot_code_review_enabled": false,
@@ -50,7 +51,16 @@
 			"parameters": {
 				"strict_required_status_checks_policy": true,
 				"do_not_enforce_on_create": false,
-				"required_status_checks": []
+				"required_status_checks": [
+					{
+						"context": "Run Unit Tests",
+						"integration_id": 15368
+					},
+					{
+						"context": "CodeQL",
+						"integration_id": 57789
+					}
+				]
 			}
 		},
 		{
