@@ -1,6 +1,6 @@
 {
 	"name": "@alessiofrittoli/stream-reader",
-	"version": "0.5.1",
+	"version": "1.0.0",
 	"description": "Easly read pushed data from a Stream",
 	"author": {
 		"name": "Alessio Frittoli",

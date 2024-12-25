@@ -1,6 +1,6 @@
 # Stream Reader 📚
 
-Version 0.5.1
+Version 1.0.0
 
 ## Easly read pushed data from a Stream
 
