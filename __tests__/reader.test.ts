@@ -1,4 +1,4 @@
-import StreamReader from '@/index'
+import { StreamReader } from '@/index'
 import { OnCloseEventListener, OnErrorEventListener, OnReadEventListener } from '@/types'
 
 const sleep = ( ms: number ) => new Promise<void>( resolve => setTimeout( resolve, ms ) )
