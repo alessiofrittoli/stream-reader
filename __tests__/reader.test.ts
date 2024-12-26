@@ -23,9 +23,9 @@ describe( 'StreamReader', () => {
 
 	it( 'emit \'read\' Event when chunk is received', async () => {
 
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 
@@ -40,9 +40,9 @@ describe( 'StreamReader', () => {
 	
 	it( 'emit \'close\' Event when stream writer get closed', async () => {
 
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 	
@@ -57,9 +57,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'skips \'close\' when already closed', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 	
@@ -68,8 +68,8 @@ describe( 'StreamReader', () => {
 
 		await reader.read()
 
-		reader.close( [] )
-		reader.close( [] )
+		reader.close()
+		reader.close()
 
 		expect( onClose ).toHaveBeenCalledTimes( 1 )
 		expect( onClose ).toHaveBeenCalledWith( expect.any( Array ) )		
@@ -78,9 +78,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'removes \'read\' and \'close\' listeners on close', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 	
@@ -97,9 +97,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'emit \'error\' Event when an Error occures', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer, true )
 			.catch( error => {
@@ -115,9 +115,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'throws a new Error when no listener is attached to the \'error\' Event', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 
@@ -128,9 +128,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'removes \'read\' and \'close\' listeners when Error occures', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer, true )
 			.catch( error => {
@@ -164,9 +164,9 @@ describe( 'StreamReader', () => {
 	describe( 'StreamReader.read()', () => {
 		it( 'returns a Promise with an Array of streamed chunks', async () => {
 	
-			const stream		= new TransformStream<Buffer>()
+			const stream		= new TransformStream<Buffer, Buffer>()
 			const writer		= stream.writable.getWriter()
-			const streamReader	= new StreamReader<Buffer>( stream.readable )
+			const streamReader	= new StreamReader( stream.readable )
 	
 			streamData( writer )
 
