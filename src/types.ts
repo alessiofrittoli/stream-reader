@@ -116,9 +116,9 @@ export type OnErrorEventListener = Listener<'error'>
 /**
  * A generator that produces chunks of data asynchronously.
  * This can be a regular or async generator.
- * @template I The type of data produced by the generator.
+ * @template T The type of data produced by the generator.
  */
-export type StreamGenerator<I = unknown> = (
-	| Generator<I, void, unknown>
-	| AsyncGenerator<I, void, unknown>
+export type StreamGenerator<T = unknown> = (
+	| Generator<T, void, unknown>
+	| AsyncGenerator<T, void, unknown>
 )

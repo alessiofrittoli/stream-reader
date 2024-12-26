@@ -57,12 +57,14 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	/**
 	 * Asynchronously reads on-demand stream data.
 	 * 
-	 * This method reads data chunks using the `StreamReader<T>.readChunks()` method and pushes each chunk
-	 * to the `receivedChunks` array. It also emits a 'read' event for each chunk.
-	 * 
+	 * Optionally transform each chunk using the provided transform function.
+	 * Emits a 'read' event for each chunk after it has been processed.
 	 * If an error occurs during the reading process, it is caught and passed to the `error` method.
 	 * 
-	 * @returns A new Promise that resolves the `receivedChunks` array after closing the reader.
+	 * @template I - The type of the input chunks.
+	 * @template O - The type of the output chunks after transformation.
+	 * @param transform - (Optional) A function that transforms each chunk.
+	 * @returns A new Promise that resolves to an array of processed chunks.
 	 */
 	async read( transform?: TransformChunk<I, O> )
 	{
