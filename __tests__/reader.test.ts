@@ -265,7 +265,7 @@ describe( 'StreamReader', () => {
 			}, 30 )
 			
 			await reader.read()
-			await expect( streamPromise ).rejects.toThrow( 'Streming reader aborted.' )
+			await expect( streamPromise ).rejects.toThrow( 'Streming reader cancelled.' )
 		} )
 
 
