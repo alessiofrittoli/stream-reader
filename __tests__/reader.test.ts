@@ -22,12 +22,6 @@ describe( 'StreamReader', () => {
 			await writer.write( Buffer.from( chunk ) )
 			await sleep( 50 )
 		}
-		// await writer.write( Buffer.from( 'data 1' ) )
-		// await sleep( 50 )
-		// if ( error ) {
-		// 	throw new Error( 'Test Error' )
-		// }
-		// await writer.write( Buffer.from( 'data 2' ) )
 		await writer.close()
 		writer.releaseLock()
 	}
@@ -271,7 +265,32 @@ describe( 'StreamReader', () => {
 			}, 30 )
 			
 			await reader.read()
-			await expect( streamPromise ).rejects.toThrow( 'Streming reader aborted.' )
+			await expect( streamPromise ).rejects.toThrow( 'Streming reader cancelled.' )
+		} )
+
+
+		it( 'allows chunk by chunk transformation', async () => {
+
+			const stream	= new TransformStream<Buffer, Buffer>()
+			const writer	= stream.writable.getWriter()
+			const reader	= new StreamReader<Buffer, string>( stream.readable )
+
+			streamData( { writer } )
+
+			reader.on( 'read', chunk => {
+				expect( typeof chunk ).toBe( 'string' )
+			} )
+
+			const dataRead = reader.read( String )
+
+			await expect( dataRead ).resolves.toBeInstanceOf( Array )
+			
+			const chunks = ( await dataRead ).map( chunk => {
+				expect( typeof chunk ).toBe( 'string' )
+				return chunk
+			} )
+			expect( chunks ).toEqual( defaultChunks )
+
 		} )
 
 	} )
