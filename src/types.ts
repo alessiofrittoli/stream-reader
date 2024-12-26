@@ -1,4 +1,17 @@
+/**
+ * Represents a chunk of data that can be read, which can either be of type `T` or a promise that resolves to `T`.
+ *
+ * @template T - The type of the data chunk. Defaults to `unknown` if not specified.
+ */
 export type ReadChunk<T = unknown> = T | Awaited<T>
+
+
+
+/**
+ * Represents an Array of `ReadChunk` objects.
+ * 
+ * @template T - The type of data contained in each `ReadChunk`.
+ */
 export type ReadChunks<T = unknown> = ReadChunk<T>[]
 
 /**
@@ -15,9 +28,9 @@ export type StreamReaderEvents<T = unknown> = {
 
 	/**
 	 * Emitted when the stream is closed.
-	 * @param {ReadChunks} chunks - An array of chunks read from the stream before it was closed.
+	 * @param {ReadChunks<T>} chunks - An array of chunks read from the stream before it was closed.
 	 */
-	close: [ ReadChunks ]
+	close: [ ReadChunks<T> ]
 
 
 	/**
@@ -31,7 +44,7 @@ export type StreamReaderEvents<T = unknown> = {
 	 * Emitted when an error occurs during reading.
 	 * @param {DOMException} error - The error that occurred during the reading process.
 	 */
-	abort: [ DOMException ]
+	cancel: [ DOMException ]
 }
 
 
@@ -74,9 +87,9 @@ export type OnCloseEventListener<T = unknown> = Listener<'close', T>
  * It is used to define the shape of the listener function that can be registered to handle
  * such events.
  * 
- * @typedef {Listener<'abort'>} OnAbortEventListener
+ * @typedef {Listener<'cancel'>} OnCancelEventListener
  */
-export type OnAbortEventListener = Listener<'abort'>
+export type OnCancelEventListener = Listener<'cancel'>
 
 
 /**
