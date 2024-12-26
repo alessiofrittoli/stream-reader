@@ -1,5 +1,5 @@
 import { StreamReader } from '@/index'
-import { OnCloseEventListener, OnErrorEventListener, OnReadEventListener } from '@/types'
+import { OnAbortEventListener, OnCloseEventListener, OnErrorEventListener, OnReadEventListener } from '@/types'
 
 const sleep = ( ms: number ) => new Promise<void>( resolve => setTimeout( resolve, ms ) )
 
@@ -23,9 +23,9 @@ describe( 'StreamReader', () => {
 
 	it( 'emit \'read\' Event when chunk is received', async () => {
 
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 
@@ -40,9 +40,9 @@ describe( 'StreamReader', () => {
 	
 	it( 'emit \'close\' Event when stream writer get closed', async () => {
 
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 	
@@ -57,9 +57,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'skips \'close\' when already closed', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 	
@@ -68,8 +68,8 @@ describe( 'StreamReader', () => {
 
 		await reader.read()
 
-		reader.close( [] )
-		reader.close( [] )
+		reader.close()
+		reader.close()
 
 		expect( onClose ).toHaveBeenCalledTimes( 1 )
 		expect( onClose ).toHaveBeenCalledWith( expect.any( Array ) )		
@@ -78,9 +78,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'removes \'read\' and \'close\' listeners on close', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 	
@@ -97,9 +97,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'emit \'error\' Event when an Error occures', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer, true )
 			.catch( error => {
@@ -115,9 +115,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'throws a new Error when no listener is attached to the \'error\' Event', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer )
 
@@ -128,9 +128,9 @@ describe( 'StreamReader', () => {
 
 
 	it( 'removes \'read\' and \'close\' listeners when Error occures', async () => {
-		const stream	= new TransformStream<Buffer>()
+		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer>( stream.readable )
+		const reader	= new StreamReader( stream.readable )
 
 		streamData( writer, true )
 			.catch( error => {
@@ -164,9 +164,9 @@ describe( 'StreamReader', () => {
 	describe( 'StreamReader.read()', () => {
 		it( 'returns a Promise with an Array of streamed chunks', async () => {
 	
-			const stream		= new TransformStream<Buffer>()
+			const stream		= new TransformStream<Buffer, Buffer>()
 			const writer		= stream.writable.getWriter()
-			const streamReader	= new StreamReader<Buffer>( stream.readable )
+			const streamReader	= new StreamReader( stream.readable )
 	
 			streamData( writer )
 
@@ -181,6 +181,103 @@ describe( 'StreamReader', () => {
 			expect( finalChunks ).toBeInstanceOf( Array )
 			expect( finalChunks ).toEqual( [ 'data 1', 'data 2' ] )
 		} )
+	} )
+
+
+	describe( 'StreamReader.abort()', () => {
+
+		it( 'allows to abort the reader before stream get closed', async () => {
+
+			const stream	= new TransformStream<Buffer, Buffer>()
+			const writer	= stream.writable.getWriter()
+			const reader	= new StreamReader( stream.readable )
+			
+			const streamPromise = streamData( writer )
+			
+			setTimeout( () => {
+				reader.abort( 'User aborted the data reading.' )
+			}, 30 )
+			
+
+			const finalChunks = (
+				( await reader.read() )
+					.map( chunk => Buffer.from( chunk ).toString() )
+			)
+			
+			expect( finalChunks ).toEqual( [ 'data 1' ] )
+			await expect( streamPromise ).rejects.toThrow( 'User aborted the data reading.' )
+		} )
+
+		
+		it( 'emit \'abort\' Event when the reader aborts', async () => {
+			const stream	= new TransformStream<Buffer, Buffer>()
+			const writer	= stream.writable.getWriter()
+			const reader	= new StreamReader( stream.readable )
+
+
+			streamData( writer )
+				.catch( () => {
+					writer.releaseLock()
+				} )
+
+			const onAbort: OnAbortEventListener = jest.fn()
+			reader.on( 'abort', onAbort )
+			
+			setTimeout( () => {
+				reader.abort( 'User aborted the data reading.' )
+			}, 30 )
+			
+			await reader.read()
+			expect( onAbort ).toHaveBeenCalledTimes( 1 )
+			expect( onAbort ).toHaveBeenCalledWith( expect.any( DOMException ) )
+		} )
+
+
+		it( 'skips abort if already closed', async () => {
+			const stream	= new TransformStream<Buffer, Buffer>()
+			const writer	= stream.writable.getWriter()
+			const reader	= new StreamReader( stream.readable )
+
+
+			streamData( writer )
+				.catch( () => {
+					writer.releaseLock()
+				} )
+
+			const onAbort: OnAbortEventListener = jest.fn()
+			reader.on( 'abort', onAbort )
+			reader.on( 'error', () => {
+				// expected error since we're closing before aborting (Invalid state: Releasing reader).
+			} )
+			
+			setTimeout( async () => {
+				await reader.close()
+				reader.abort( 'User aborted the data reading.' )
+			}, 30 )
+			
+			await reader.read()
+			expect( onAbort ).toHaveBeenCalledTimes( 0 )
+		} )
+
+
+		it( 'aborts the reader with a default reason message', async () => {
+			const stream	= new TransformStream<Buffer, Buffer>()
+			const writer	= stream.writable.getWriter()
+			const reader	= new StreamReader( stream.readable )
+
+			const streamPromise = streamData( writer )
+
+			const onAbort: OnAbortEventListener = jest.fn()
+			reader.on( 'abort', onAbort )
+			
+			setTimeout( async () => {
+				reader.abort()
+			}, 30 )
+			
+			await reader.read()
+			await expect( streamPromise ).rejects.toThrow( 'Streming reader aborted.' )
+		} )
+
 	} )
 
 

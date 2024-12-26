@@ -1,10 +1,26 @@
 import EventEmitter from 'events'
-import type { StreamGenerator, StreamReaderEvents } from './types'
+import type { ReadChunks, StreamGenerator, StreamReaderEvents } from './types'
 
 
 /**
- * A utility class for reading from a `ReadableStream`.
+ * A class for reading data from a `ReadableStream` on demand.
+ * 
  * @template T The type of data being read from the stream.
+ * 
+ * @extends EventEmitter<StreamReaderEvents<T>>
+ * 
+ * @example
+ * ```ts
+ * const response = await fetch('https://example.com/data');
+ * if (response.body) {
+ *   const reader = new StreamReader(response.body);
+ *   for await (const chunk of reader.readChunks()) {
+ *     console.log('Received chunk:', chunk);
+ *   }
+ * }
+ * ```
+ * 
+ * @returns A new instance of `StreamReader`.
  */
 export class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T>>
 {
@@ -12,6 +28,7 @@ export class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T
 	reader: ReadableStreamDefaultReader<T>
 	/** Indicates whether the stream has been closed. */
 	closed: boolean
+	private receivedChunks: ReadChunks<T>
 
 	
 	/**
@@ -22,8 +39,9 @@ export class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T
 	{
 		super( { captureRejections: true } )
 
-		this.reader = stream.getReader()
-		this.closed = false
+		this.reader	= stream.getReader()
+		this.closed	= false
+		this.receivedChunks = []
 	}
 
 
@@ -34,18 +52,19 @@ export class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T
 	 */
 	async read()
 	{
-		const chunks: Awaited<T>[] = []
 		try {
 			for await ( const chunk of this.readChunks() ) {
-				chunks.push( chunk )
+				this.receivedChunks.push( chunk )
 				this.emit( 'read', chunk )
 			}
-			this.close( chunks )
-			return chunks
+			return (
+				this.close()
+					.then( () => this.receivedChunks )
+			)
 		} catch ( error ) {
 			this.error( error as Error )
 		}
-		return chunks
+		return this.receivedChunks
 	}
 
 
@@ -89,18 +108,40 @@ export class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T
 	 * 
 	 * Emits the `close` event.
 	 * 
-	 * @param chunks The stream final chunks array.
 	 * @returns `StreamReader<T>` for chaining purposes.
 	 */
-	close( chunks: Awaited<T>[] )
+	async close()
 	{
 		if ( this.closed ) return this
 		this.closed = true
 		this.reader.releaseLock()
-		this.emit( 'close', chunks )
-		this.removeAllListeners( 'read' )
-		this.removeAllListeners( 'close' )
-		return this
+		this.emit( 'close', this.receivedChunks )
+		return this.removeListeners()
+	}
+
+
+	
+	/**
+	 * Aborts the streaming reader operation.
+	 *
+	 * @param reason - Optional reason for aborting the operation.
+	 * @returns A new Promise that resolves to the current instance after aborting.
+	 *
+	 * @remarks
+	 * This method will cancel the reader, release the lock, emit an 'abort' event, and remove listeners.
+	 */
+	async abort( reason?: string )
+	{
+		if ( this.closed ) return this
+		
+		this.closed		= true
+		const exception	= new DOMException( reason || 'Streming reader aborted.', 'AbortError' )
+		exception.cause = DOMException.ABORT_ERR
+
+		await this.reader.cancel( exception )
+		this.reader.releaseLock()
+		this.emit( 'abort', exception )
+		return this.removeListeners()
 	}
 
 
@@ -116,12 +157,28 @@ export class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T
 	{
 		this.closed = true
 		this.reader.releaseLock()
-		this.removeAllListeners( 'read' )
-		this.removeAllListeners( 'close' )
+		this.removeListeners()
 		if ( ! this.listenerCount( 'error' ) ) {
 			throw error
 		}
 		this.emit( 'error', error )
+		return this
+	}
+
+
+
+
+	/**
+	 * Removes all listeners for the 'read', 'close', and 'abort' events.
+	 *
+	 * @returns The current `StreamReader` instance for chaining.
+	 */
+	private removeListeners()
+	{
+		this.removeAllListeners( 'read' )
+		this.removeAllListeners( 'close' )
+		this.removeAllListeners( 'abort' )
+
 		return this
 	}
 

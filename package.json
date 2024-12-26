@@ -52,7 +52,7 @@
 		"test:ci:coverage": "pnpm test:ci --coverage",
 		
 		"test:serve-coverage": "http-server ./coverage/lcov-report --gzip true -p 0 -o --silent",
-		"test:coverage:serve": "concurrently --prefix none --kill-others \"pnpm test:coverage\" \"pnpm test:serve-coverage\"",
+		"test:coverage:serve": "concurrently --prefix none --kill-others \"jest --watchAll --verbose --coverage\" \"pnpm test:serve-coverage\"",
 		
 		"test:coverage:jsdom": "JSDOM=true pnpm test:coverage",
 		"test:coverage:jsdom:serve": "JSDOM=true pnpm test:coverage:serve",

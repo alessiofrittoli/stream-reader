@@ -1,3 +1,6 @@
+export type ReadChunk<T = unknown> = T | Awaited<T>
+export type ReadChunks<T = unknown> = ReadChunk<T>[]
+
 /**
  * Event types emitted by the StreamReader.
  * @template T The type of data being read from the stream.
@@ -5,16 +8,16 @@
 export type StreamReaderEvents<T = unknown> = {
 	/**
 	 * Emitted when a chunk of data is read from the stream.
-	 * @param {T | Awaited<T>} chunk - The chunk of data read from the stream.
+	 * @param {ReadChunk<T>} chunk - The chunk of data read from the stream.
 	 */
-	read: [ T | Awaited<T> ]
+	read: [ ReadChunk<T> ]
 
 
 	/**
 	 * Emitted when the stream is closed.
-	 * @param {Awaited<T>[]} chunks - An array of chunks read from the stream before it was closed.
+	 * @param {ReadChunks} chunks - An array of chunks read from the stream before it was closed.
 	 */
-	close: [ Awaited<T>[] ]
+	close: [ ReadChunks ]
 
 
 	/**
@@ -22,6 +25,13 @@ export type StreamReaderEvents<T = unknown> = {
 	 * @param {Error} error - The error that occurred during the reading process.
 	 */
 	error: [ Error ]
+
+
+	/**
+	 * Emitted when an error occurs during reading.
+	 * @param {DOMException} error - The error that occurred during the reading process.
+	 */
+	abort: [ DOMException ]
 }
 
 
@@ -42,7 +52,7 @@ export type Listener<
  * Listener for the "read" event.
  * 
  * @template T The type of data being read.
- * @param {T | Awaited<T>} chunk - The chunk of data that was read.
+ * @param {ReadChunk<T>} chunk - The chunk of data that was read.
  */
 export type OnReadEventListener<T = unknown> = Listener<'read', T>
 
@@ -51,9 +61,22 @@ export type OnReadEventListener<T = unknown> = Listener<'read', T>
  * Listener for the "close" event.
  * 
  * @template T The type of data being read.
- * @param {Awaited<T>[]} chunks - An array of chunks read before the stream was closed.
+ * @param {ReadChunk<T>[]} chunks - An array of chunks read before the stream was closed.
  */
 export type OnCloseEventListener<T = unknown> = Listener<'close', T>
+
+
+
+/**
+ * Listener for the "abort" event.
+ * 
+ * This type represents a listener function that is invoked when an 'abort' event occurs.
+ * It is used to define the shape of the listener function that can be registered to handle
+ * such events.
+ * 
+ * @typedef {Listener<'abort'>} OnAbortEventListener
+ */
+export type OnAbortEventListener = Listener<'abort'>
 
 
 /**
