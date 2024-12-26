@@ -232,6 +232,52 @@ describe( 'StreamReader', () => {
 			expect( onAbort ).toHaveBeenCalledWith( expect.any( DOMException ) )
 		} )
 
+
+		it( 'skips abort if already closed', async () => {
+			const stream	= new TransformStream<Buffer, Buffer>()
+			const writer	= stream.writable.getWriter()
+			const reader	= new StreamReader( stream.readable )
+
+
+			streamData( writer )
+				.catch( () => {
+					writer.releaseLock()
+				} )
+
+			const onAbort: OnAbortEventListener = jest.fn()
+			reader.on( 'abort', onAbort )
+			reader.on( 'error', () => {
+				// expected error since we're closing before aborting (Invalid state: Releasing reader).
+			} )
+			
+			setTimeout( async () => {
+				await reader.close()
+				reader.abort( 'User aborted the data reading.' )
+			}, 30 )
+			
+			await reader.read()
+			expect( onAbort ).toHaveBeenCalledTimes( 0 )
+		} )
+
+
+		it( 'aborts the reader with a default reason message', async () => {
+			const stream	= new TransformStream<Buffer, Buffer>()
+			const writer	= stream.writable.getWriter()
+			const reader	= new StreamReader( stream.readable )
+
+			const streamPromise = streamData( writer )
+
+			const onAbort: OnAbortEventListener = jest.fn()
+			reader.on( 'abort', onAbort )
+			
+			setTimeout( async () => {
+				reader.abort()
+			}, 30 )
+			
+			await reader.read()
+			await expect( streamPromise ).rejects.toThrow( 'Streming reader aborted.' )
+		} )
+
 	} )
 
 

@@ -120,18 +120,22 @@ export class StreamReader<T = unknown> extends EventEmitter<StreamReaderEvents<T
 	}
 
 
+	
 	/**
-	 * Aborts the {@link ServerSentEvents.writer}.
+	 * Aborts the streaming reader operation.
 	 *
-	 * @param reason - An optional string providing the reason for the abort.
-	 * @returns A new Promise with the current `ServerSentEvents` instance for chaining purposes.
+	 * @param reason - Optional reason for aborting the operation.
+	 * @returns A new Promise that resolves to the current instance after aborting.
+	 *
+	 * @remarks
+	 * This method will cancel the reader, release the lock, emit an 'abort' event, and remove listeners.
 	 */
 	async abort( reason?: string )
 	{
 		if ( this.closed ) return this
 		
 		this.closed		= true
-		const exception	= new DOMException( reason || 'Streming writer aborted.', 'AbortError' )
+		const exception	= new DOMException( reason || 'Streming reader aborted.', 'AbortError' )
 		exception.cause = DOMException.ABORT_ERR
 
 		await this.reader.cancel( exception )
