@@ -24,7 +24,7 @@ import type {
  * }
  * ```
  * 
- * @returns A new instance of `StreamReader<T>`.
+ * @returns A new instance of `StreamReader`.
  */
 export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderEvents<O>>
 {
@@ -41,7 +41,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	
 	
 	/**
-	 * Creates an instance of `StreamReader<T>`.
+	 * Creates an instance of `StreamReader`.
 	 * @param stream The input `ReadableStream<T>` to read data from.
 	 */
 	constructor( stream: ReadableStream<I> )
@@ -126,7 +126,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	 * Cancels the streaming reader operation.
 	 *
 	 * @param reason - Optional reason for aborting the operation.
-	 * @returns A new Promise that resolves the `StreamReader<T>` for chaining purposes after aborting.
+	 * @returns A new Promise that resolves the `StreamReader` for chaining purposes after aborting.
 	 *
 	 * @remarks
 	 * This method will cancel the reader, release the lock, emit an 'cancel' event, and remove listeners.
@@ -152,8 +152,8 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	 * 
 	 * Emits the `close` event.
 	 * 
-	 * @private This method is meant to be internally used when the stream writer get closed. Use `StreamReader<T>.cancel()` method if you need to stop reading before stream writer complete his task.
-	 * @returns `StreamReader<T>` for chaining purposes.
+	 * @private This method is meant to be internally used when the stream writer get closed. Use `StreamReader.cancel()` method if you need to stop reading before stream writer complete his task.
+	 * @returns `StreamReader` for chaining purposes.
 	 * 
 	 * @remarks
 	 * This method sets the `closed` property to `true`, releases the lock on the reader,
@@ -175,7 +175,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	 *
 	 * @param error - The error to handle.
 	 * @throws Will throw the error if there are no `error` listeners.
-	 * @returns `StreamReader<T>` for chaining purposes.
+	 * @returns `StreamReader` for chaining purposes.
 	 */
 	private error( error: Error )
 	{
@@ -192,7 +192,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	/**
 	 * Removes all listeners for the `read`, `close`, and `cancel` events.
 	 *
-	 * @returns `StreamReader<T>` for chaining purposes.
+	 * @returns `StreamReader` for chaining purposes.
 	 */
 	private removeListeners()
 	{
