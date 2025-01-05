@@ -1,5 +1,10 @@
 import { StreamReader } from '@/index'
-import { OnCancelEventListener, OnCloseEventListener, OnErrorEventListener, OnReadEventListener } from '@/types'
+import type {
+	OnCancelEventListener,
+	OnCloseEventListener,
+	OnErrorEventListener,
+	OnReadEventListener
+} from '@/types'
 
 const sleep = ( ms: number ) => new Promise<void>( resolve => setTimeout( resolve, ms ) )
 
