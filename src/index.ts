@@ -1,12 +1,8 @@
 import { EventEmitter } from '@alessiofrittoli/event-emitter'
 
-import type {
-	ReadChunk,
-	ReadChunks,
-	StreamGenerator,
-	StreamReaderEvents,
-	TransformChunk
-} from './types'
+import { generatorToReadableStream } from './utils'
+import type { ReadChunk, ReadChunks, StreamReaderEvents, TransformChunk } from './types'
+
 
 /**
  * A class for reading data from a `ReadableStream` on demand.
@@ -205,31 +201,5 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	}
 
 
-	/**
-	 * Convert a Generator or AsyncGenerator into a ReadableStream.
-	 *
-	 * @link https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream#convert_async_iterator_to_stream
-	 *
-	 * @template T The type of data produced by the iterator.
-	 * 
-	 * @param	generator The Generator or AsyncGenerator to convert.
-	 * @returns	A new ReadableStream instance
-	 */
-	static generatorToReadableStream<T = unknown>( generator: StreamGenerator<T> )
-	{
-		return (
-			new ReadableStream<T>( {
-				async pull( controller )
-				{
-
-					const { value, done } = await generator.next()
-
-					if ( ! done ) return controller.enqueue( value )
-
-					return controller.close()
-
-				},
-			} )
-		)
-	}
+	static generatorToReadableStream = generatorToReadableStream
 }
