@@ -1,8 +1,14 @@
 # Stream Reader 📚
 
-Version 1.3.0
+[![NPM Latest Version][version-badge]][npm-url] [![Coverage Status][coverage-badge]][coverage-url] [![NPM Monthly Downloads][downloads-badge]][npm-url] [![Dependencies][deps-badge]][deps-url]
 
-[![Coverage Status](https://coveralls.io/repos/github/alessiofrittoli/stream-reader/badge.svg)](https://coveralls.io/github/alessiofrittoli/stream-reader) [![Dependencies](https://img.shields.io/librariesio/release/npm/%40alessiofrittoli%2Fstream-reader)](https://libraries.io/npm/%40alessiofrittoli%2Fstream-reader)
+[version-badge]: https://img.shields.io/npm/v/%40alessiofrittoli%2Fstream-reader
+[npm-url]: https://npmjs.org/package/%40alessiofrittoli%2Fstream-reader
+[coverage-badge]: https://coveralls.io/repos/github/alessiofrittoli/stream-reader/badge.svg
+[coverage-url]: https://coveralls.io/github/alessiofrittoli/stream-reader
+[downloads-badge]: https://img.shields.io/npm/dm/%40alessiofrittoli%2Fstream-reader.svg
+[deps-badge]: https://img.shields.io/librariesio/release/npm/%40alessiofrittoli%2Fstream-reader
+[deps-url]: https://libraries.io/npm/%40alessiofrittoli%2Fstream-reader
 
 ## Easly read pushed data from a Stream
 
@@ -12,18 +18,18 @@ The `StreamReader` class is a utility for reading data from a `ReadableStream` i
 
 - [Getting started](#getting-started)
 - [API Reference](#api-reference)
-	- [StreamReader Class API Reference](#streamreader-class-api-reference)
-		- [Constructor](#constructor)
-		- [Properties](#properties)
-		- [Methods](#methods)
-		- [Static Methods](#static-methods)
-		- [Listening Event](#listening-events)
-		- [Usage](#usage)
-		- [Error handling](#error-handling)
-	- [Types API Reference](#types-api-reference)
+  - [StreamReader Class API Reference](#streamreader-class-api-reference)
+    - [Constructor](#constructor)
+    - [Properties](#properties)
+    - [Methods](#methods)
+    - [Static Methods](#static-methods)
+    - [Listening Event](#listening-events)
+    - [Usage](#usage)
+    - [Error handling](#error-handling)
+  - [Types API Reference](#types-api-reference)
 - [Development](#development)
-	- [ESLint](#eslint)
-	- [Jest](#jest)
+  - [ESLint](#eslint)
+  - [Jest](#jest)
 - [Contributing](#contributing)
 - [Security](#security)
 - [Credits](#made-with-)
@@ -66,7 +72,7 @@ The `StreamReader` class constructor accepts a `ReadableStream` argument. You ca
 <summary>Example</summary>
 
 ```ts
-const reader = new StreamReader<Buffer>( ... )
+const reader  = new StreamReader<Buffer>( ... )
 const reader2 = new StreamReader<Buffer, string>( ... )
 ```
 
@@ -79,10 +85,10 @@ const reader2 = new StreamReader<Buffer, string>( ... )
 <summary>Automatically inferred type</summary>
 
 ```ts
-type Input	= Buffer
-type Output	= Buffer
-const stream = new TransformStream<Input, Output>()
-const reader = new StreamReader( stream.readable ) // type of `StreamReader<Output, Output>`
+type Input    = Buffer
+type Output   = Buffer
+const stream  = new TransformStream<Input, Output>()
+const reader  = new StreamReader( stream.readable ) // type of `StreamReader<Output, Output>`
 ```
 
 </details>
@@ -127,7 +133,7 @@ It internally uses the `StreamReader.readChunks()` method to read the received c
 
 It emits usefull events such as:
 
-- `read` - Emitted when a chunk is received from the stream and processed by the optional transform function.
+- `data` - Emitted when a chunk is received from the stream and processed by the optional transform function.
 - `close` - Emitted when the stream is closed.
 - `error` - Emitted when an error occurs while reading.
 
@@ -176,7 +182,7 @@ An async iterable object for consuming chunks of data.
 
 The `StreamReader.cancel()` method it's pretty usefull when stream data reading is no longer needed, regardless of stream writer state.
 
-This method will cancel the reader, release the lock, emit a 'cancel' event, and remove `read`, `close` and `cancel` event listeners.
+This method will cancel the reader, release the lock, emit a 'cancel' event, and remove `data`, `close` and `cancel` event listeners.
 
 It emits the `cancel` event.
 
@@ -224,7 +230,7 @@ The `StreamReader` class extends the `EventEmitter` class, providing events for 
 
 | Event    | Arguments | Type            | Description |
 |----------|-----------|-----------------|-------------|
-| `read`   |           |                 | Emitted when a chunk of data is read from the stream and processed by the optional `transform` function. |
+| `data`   |           |                 | Emitted when a chunk of data is read from the stream and processed by the optional `transform` function. |
 |          | `chunk`   | `ReadChunk<O>`  | The chunk of data read from the stream. |
 | `close`  |           |                 | Emitted when the stream is closed. |
 |          | `chunks`  | `ReadChunks<O>` | An array of chunks read from the stream before it was closed. |
@@ -241,12 +247,12 @@ The `StreamReader` class extends the `EventEmitter` class, providing events for 
 
 <summary>Examples</summary>
 
-###### `read` event
+###### `data` event
 
 ```ts
 const reader = new StreamReader( ... )
 reader.on( 'data', chunk => {
-	console.log( 'received chunk', chunk )
+  console.log( 'received chunk', chunk )
 } )
 ```
 
@@ -257,7 +263,7 @@ reader.on( 'data', chunk => {
 ```ts
 const reader = new StreamReader( ... )
 reader.on( 'close', chunks => {
-	console.log( 'chunks', chunks )
+  console.log( 'chunks', chunks )
 } )
 ```
 
@@ -268,7 +274,7 @@ reader.on( 'close', chunks => {
 ```ts
 const reader = new StreamReader( ... )
 reader.on( 'error', error => {
-	console.error( error )
+  console.error( error )
 } )
 ```
 
@@ -279,7 +285,7 @@ reader.on( 'error', error => {
 ```ts
 const reader = new StreamReader( ... )
 reader.on( 'cancel', reason => {
-	console.log( 'reading cancelled', reason.message )
+  console.log( 'reading cancelled', reason.message )
 } )
 ```
 
@@ -296,23 +302,23 @@ const sleep = ( ms: number ) => new Promise<void>( resolve => setTimeout( resolv
 
 const defaultChunks = [ 'data 1', 'data 2' ]
 const erroredChunks = [ 'data 1', new Error( 'Test Error' ), 'data 2' ]
-	
+    
 const streamData = async (
-	{ writer, chunks }: {
-		writer: WritableStreamDefaultWriter<Buffer>
-		chunks?: ( string | Error )[]
-	}
+  { writer, chunks }: {
+    writer: WritableStreamDefaultWriter<Buffer>
+    chunks?: ( string | Error )[]
+  }
 ) => {
-	chunks ||= defaultChunks
-	for await ( const chunk of chunks ) {
-		if ( chunk instanceof Error ) {
-			throw chunk
-		}
-		await writer.write( Buffer.from( chunk ) )
-		await sleep( 50 )
-	}
-	await writer.close()
-	writer.releaseLock()
+  chunks ||= defaultChunks
+  for await ( const chunk of chunks ) {
+    if ( chunk instanceof Error ) {
+      throw chunk
+    }
+    await writer.write( Buffer.from( chunk ) )
+    await sleep( 50 )
+  }
+  await writer.close()
+  writer.releaseLock()
 }
 ```
 
@@ -321,9 +327,9 @@ const streamData = async (
 <summary>Basic usage</summary>
 
 ```ts
-const stream	= new TransformStream<Buffer, Buffer>()
-const writer	= stream.writable.getWriter()
-const reader	= new StreamReader( stream.readable )
+const stream  = new TransformStream<Buffer, Buffer>()
+const writer  = stream.writable.getWriter()
+const reader  = new StreamReader( stream.readable )
 
 streamData( { writer } )
 
@@ -343,13 +349,13 @@ const response = await fetch( ... )
 let resourceSize = 0
 
 if ( response.body ) {
-	const reader	= new StreamReader( response.body )
-	const decoder	= new TextDecoder()
-	reader.on( 'data', chunk => {
-		const decoded = decoder.decode( chunk, { stream: true } )
-		resourceSize += chunk.BYTES_PER_ELEMENT * chunk.length
-	} )
-	const chunks = await reader.read()
+    const reader  = new StreamReader( response.body )
+    const decoder = new TextDecoder()
+    reader.on( 'data', chunk => {
+        const decoded = decoder.decode( chunk, { stream: true } )
+        resourceSize += chunk.BYTES_PER_ELEMENT * chunk.length
+    } )
+    const chunks = await reader.read()
 }
 ```
 
@@ -362,16 +368,42 @@ if ( response.body ) {
 <summary>Transforming read chunks</summary>
 
 ```ts
-const stream	= new TransformStream<Buffer, Buffer>()
-const writer	= stream.writable.getWriter()
-const reader	= new StreamReader<Buffer, string>( stream.readable )
+const stream  = new TransformStream<Buffer, Buffer>()
+const writer  = stream.writable.getWriter()
+const reader  = new StreamReader<Buffer, string>( stream.readable, {
+  transform( chunk ) {
+    return chunk.toString( 'base64url' )
+  }
+} )
 
 streamData( { writer } )
 
 reader.on( 'data', chunk => {
-	console.log( chunk ) // chunk is type of string
+  console.log( chunk ) // chunk is now a base64url string
 } )
-const chunks = await reader.read( chunk => chunk.toString( 'base64url' ) ) // `string[]`
+const chunks = await reader.read() // `string[]`
+```
+
+</details>
+
+---
+
+<details>
+
+<summary>Opting-out from in-memory chunk collection</summary>
+
+```ts
+const inMemory  = false
+const stream    = new TransformStream<Buffer, Buffer>()
+const writer    = stream.writable.getWriter()
+const reader    = new StreamReader( stream.readable, { inMemory } )
+
+streamData( { writer } )
+
+reader.on( 'data', chunk => {
+  console.log( chunk )
+} )
+const chunks = await reader.read() // empty `[]`
 ```
 
 </details>
@@ -383,16 +415,16 @@ const chunks = await reader.read( chunk => chunk.toString( 'base64url' ) ) // `s
 <summary>Cancelling the reader before Stream is closed</summary>
 
 ```ts
-const stream	= new TransformStream<Buffer, Buffer>()
-const writer	= stream.writable.getWriter()
-const reader	= new StreamReader( stream.readable )
+const stream  = new TransformStream<Buffer, Buffer>()
+const writer  = stream.writable.getWriter()
+const reader  = new StreamReader( stream.readable )
 
 streamData( { writer } )
 
 reader.read()
 
 cancelButton.addEventListener( 'click', () => {
-	reader.cancel( 'Reading no longer needed' )
+  reader.cancel( 'Reading no longer needed' )
 } )
 ```
 
@@ -410,10 +442,10 @@ In that case, you need to await and wrap the `StreamReader.read()` method call i
 
 ```ts
 try {
-	const chunks = await reader.read()
+  const chunks = await reader.read()
 } catch ( err ) {
-	const error = err as Error
-	console.error( 'An error occured', error.message )
+  const error = err as Error
+  console.error( 'An error occured', error.message )
 }
 ```
 
@@ -422,7 +454,7 @@ with `error` event listener:
 ```ts
 reader.read()
 reader.on( 'error', error => {
-	console.error( 'An error occured', error.message )
+  console.error( 'An error occured', error.message )
 } )
 ```
 
@@ -454,7 +486,7 @@ A function that transforms a chunk of data.
 
 - **Type Parameters:**
   - `I`: The type of the input chunk. Defaults to `unknown`.
-  - `O`: The type of the output chunk. Defaults to `unknown`.
+  - `O`: The type of the output chunk. Defaults to `I`.
 
 - **Parameters:**
   - `chunk`: The chunk of data to be transformed.
@@ -472,7 +504,7 @@ Defines event types emitted by the `StreamReader`.
   - `O`: The type of data being read from the stream and eventually transformed before the event is emitted.
 
 - **Event Types:**
-  - `read`: Emitted when a chunk of data is read.
+  - `data`: Emitted when a chunk of data is read.
     - **Parameters:** `chunk` (`ReadChunk<O>`)
   - `close`: Emitted when the stream is closed.
     - **Parameters:** `chunks` (`ReadChunks<O>`)
@@ -496,9 +528,9 @@ A listener function for events emitted by the `StreamReader`.
 
 ---
 
-##### `OnReadEventListener<O>`
+##### `OnDataEventListener<O>`
 
-Listener for the `read` event.
+Listener for the `data` event.
 
 - **Type Parameter:**
   - `O`: The type of data being read.
@@ -628,30 +660,30 @@ If you believe you have found a security vulnerability, we encourage you to **_r
 ### Made with ☕
 
 <table style='display:flex;gap:20px;'>
-	<tbody>
-		<tr>
-			<td>
-				<img src='https://avatars.githubusercontent.com/u/35973186' style='width:60px;border-radius:50%;object-fit:contain;'>
-			</td>
-			<td>
-				<table style='display:flex;gap:2px;flex-direction:column;'>
-					<tbody>
-						<tr>
-							<td>
-								<a href='https://github.com/alessiofrittoli' target='_blank' rel='noopener'>Alessio Frittoli</a>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<small>
-									<a href='https://alessiofrittoli.it' target='_blank' rel='noopener'>https://alessiofrittoli.it</a> |
-									<a href='mailto:info@alessiofrittoli.it' target='_blank' rel='noopener'>info@alessiofrittoli.it</a>
-								</small>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</td>
-		</tr>
-	</tbody>
+    <tbody>
+        <tr>
+            <td>
+                <img src='https://avatars.githubusercontent.com/u/35973186' style='width:60px;border-radius:50%;object-fit:contain;'>
+            </td>
+            <td>
+                <table style='display:flex;gap:2px;flex-direction:column;'>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a href='https://github.com/alessiofrittoli' target='_blank' rel='noopener'>Alessio Frittoli</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <small>
+                                    <a href='https://alessiofrittoli.it' target='_blank' rel='noopener'>https://alessiofrittoli.it</a> |
+                                    <a href='mailto:info@alessiofrittoli.it' target='_blank' rel='noopener'>info@alessiofrittoli.it</a>
+                                </small>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
 </table>

@@ -3,7 +3,7 @@ import type {
 	OnCancelEventListener,
 	OnCloseEventListener,
 	OnErrorEventListener,
-	OnReadEventListener
+	OnDataEventListener
 } from '@/types'
 
 const sleep = ( ms: number ) => new Promise<void>( resolve => setTimeout( resolve, ms ) )
@@ -43,7 +43,7 @@ describe( 'StreamReader', () => {
 
 		streamData( { writer } )
 
-		const onRead: OnReadEventListener<Buffer> = jest.fn()
+		const onRead: OnDataEventListener<Buffer> = jest.fn()
 		reader.on( 'data', onRead )
 		await reader.read()
 		
@@ -123,7 +123,7 @@ describe( 'StreamReader', () => {
 
 		streamData( { writer } )
 	
-		const onRead: OnReadEventListener<Buffer> = jest.fn()
+		const onRead: OnDataEventListener<Buffer> = jest.fn()
 		const onClose: OnCloseEventListener<Buffer> = jest.fn()
 		reader.on( 'data', onRead )
 		reader.on( 'close', onClose )

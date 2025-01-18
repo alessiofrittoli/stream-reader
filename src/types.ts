@@ -83,7 +83,7 @@ export type StreamReaderEvents<O = unknown> = {
  * 
  * @template O The type of data being read from the stream and eventually transformed before the event is emitted.
  */
-export type OnReadEventListener<O = unknown> = Listener<StreamReaderEvents<O>, 'data'>
+export type OnDataEventListener<O = unknown> = Listener<StreamReaderEvents<O>, 'data'>
 
 
 /**
