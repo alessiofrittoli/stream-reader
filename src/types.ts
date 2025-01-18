@@ -12,9 +12,22 @@ export type ReadChunk<T = unknown> = T | Awaited<T>
 /**
  * Represents an Array of `ReadChunk` objects.
  * 
- * @template T - The type of data contained in each `ReadChunk`.
+ * @template O - The type of data contained in each `ReadChunk`.
  */
-export type ReadChunks<T = unknown> = ReadChunk<T>[]
+export type ReadChunks<O = unknown> = ReadChunk<O>[]
+
+
+/**
+ * Custom additional options.
+ * 
+ * @template I The type of the input chunk. Defaults to `unknown`.
+ * @template O The type of the output chunk. Defaults to `I`.
+ */
+export interface Options<I = unknown, O = I>
+{
+	/** A function that transforms a chunk of data. */
+    transform?: TransformChunk<I, O>
+}
 
 
 /**
@@ -26,7 +39,7 @@ export type ReadChunks<T = unknown> = ReadChunk<T>[]
  * @param chunk - The chunk of data to be transformed.
  * @returns The transformed chunk of data, which can be either a synchronous result or a Promise that resolves to the result.
  */
-export type TransformChunk<I = unknown, O = unknown> = ( chunk: ReadChunk<I> ) => ( ReadChunk<O> | Promise<ReadChunk<O>> )
+export type TransformChunk<I = unknown, O = I> = ( chunk: ReadChunk<I> ) => ( ReadChunk<O> | PromiseLike<ReadChunk<O>> )
 
 
 /**
@@ -36,28 +49,28 @@ export type TransformChunk<I = unknown, O = unknown> = ( chunk: ReadChunk<I> ) =
 export type StreamReaderEvents<O = unknown> = {
 	/**
 	 * Emitted when a chunk of data is read from the stream.
-	 * @param {ReadChunk<O>} chunk - The chunk of data read from the stream.
+	 * @param chunk The chunk of data read from the stream.
 	 */
 	data: [ chunk: ReadChunk<O> ]
 
 
 	/**
 	 * Emitted when the stream is closed.
-	 * @param {ReadChunks<O>} chunks - An array of chunks read from the stream before it was closed.
+	 * @param chunks An array of chunks read from the stream before it was closed.
 	 */
 	close: [ chunks: ReadChunks<O> ]
 
 
 	/**
 	 * Emitted when an error occurs during reading.
-	 * @param {Error} error - The error that occurred during the reading process.
+	 * @param error The error that occurred during the reading process.
 	 */
 	error: [ error: Error ]
 
 
 	/**
 	 * Emitted when the reading process is canceled.
-	 * @param {DOMException} reason - A DOMException explaing the reason for aborting the operation.
+	 * @param reason A DOMException explaing the reason for aborting the operation.
 	 */
 	cancel: [ reason: DOMException ]
 }

@@ -1,7 +1,7 @@
 import { EventEmitter } from '@alessiofrittoli/event-emitter'
 
 import { generatorToReadableStream } from './utils'
-import type { ReadChunk, ReadChunks, StreamReaderEvents, TransformChunk } from './types'
+import type { ReadChunk, ReadChunks, StreamReaderEvents, Options } from './types'
 
 
 /**
@@ -35,39 +35,42 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	 * @private
 	 */
 	private receivedChunks: ReadChunks<O>
+	private transform: Options<I, O>[ 'transform' ]
 	
 	
 	/**
 	 * Creates an instance of `StreamReader`.
 	 * @param stream The input `ReadableStream<T>` to read data from.
 	 */
-	constructor( stream: ReadableStream<I> )
+	constructor( stream: ReadableStream<I>, options?: Options<I, O> )
 	{
 		super( { captureRejections: true } )
 
-		this.reader	= stream.getReader()
-		this.closed	= false
-		this.receivedChunks = []
+		this.transform		= options?.transform
+		this.reader			= stream.getReader()
+		this.closed			= false
+		this.receivedChunks	= []
 	}
 
 
 	/**
 	 * Asynchronously reads on-demand stream data.
 	 * 
-	 * Optionally transform each chunk using the provided transform function.
 	 * Emits a 'data' event for each chunk after it has been processed.
 	 * If an error occurs during the reading process, it is caught and passed to the `error` method.
 	 * 
-	 * @template I - The type of the input chunks.
-	 * @template O - The type of the output chunks after transformation.
-	 * @param transform - (Optional) A function that transforms each chunk.
-	 * @returns A new Promise that resolves to an array of processed chunks.
+	 * @returns A new Promise that resolves to an array of processed chunks if the given `options.inMemory` is `true`.
 	 */
-	async read( transform?: TransformChunk<I, O> )
+	async read()
 	{
 		try {
 			for await ( const chunk of this.readChunks() ) {
-				const processed = ( typeof transform === 'function' ? await transform( chunk ) : chunk ) as ReadChunk<O>
+				const processed = (
+					this.transform
+						? await this.transform( chunk )
+						: chunk as ReadChunk<O>
+				)
+
 				this.receivedChunks.push( processed )
 				this.emit( 'data', processed )
 			}

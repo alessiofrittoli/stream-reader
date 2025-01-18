@@ -35,7 +35,8 @@ describe( 'StreamReader', () => {
 		jest.restoreAllMocks()
 	} )
 
-	it( 'emit \'read\' Event when chunk is received', async () => {
+
+	it( 'emit \'data\' Event when chunk is received', async () => {
 		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
 		const reader	= new StreamReader( stream.readable )
@@ -48,6 +49,33 @@ describe( 'StreamReader', () => {
 		
 		expect( onRead ).toHaveBeenCalledTimes( 2 )
 		expect( onRead ).toHaveBeenCalledWith( expect.any( Buffer ) )
+	} )
+
+
+	it( 'allows chunk by chunk transformation', async () => {
+
+		const stream	= new TransformStream<Buffer, Buffer>()
+		const writer	= stream.writable.getWriter()
+		const reader	= new StreamReader<Buffer, string>( stream.readable, {
+			transform: String,
+		} )
+
+		streamData( { writer } )
+
+		reader.on( 'data', chunk => {
+			expect( typeof chunk ).toBe( 'string' )
+		} )
+
+		const dataRead = reader.read()
+
+		await expect( dataRead ).resolves.toBeInstanceOf( Array )
+		
+		const chunks = ( await dataRead ).map( chunk => {
+			expect( typeof chunk ).toBe( 'string' )
+			return chunk
+		} )
+		expect( chunks ).toEqual( defaultChunks )
+
 	} )
 
 
@@ -88,7 +116,7 @@ describe( 'StreamReader', () => {
 	} )
 
 
-	it( 'removes \'read\' and \'close\' listeners on close', async () => {
+	it( 'removes \'data\' and \'close\' listeners on close', async () => {
 		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
 		const reader	= new StreamReader( stream.readable )
@@ -138,7 +166,7 @@ describe( 'StreamReader', () => {
 	} )
 
 
-	it( 'removes \'read\' and \'close\' listeners when Error occures', async () => {
+	it( 'removes \'data\' and \'close\' listeners when Error occures', async () => {
 		const stream	= new TransformStream<Buffer, Buffer>()
 		const writer	= stream.writable.getWriter()
 		const reader	= new StreamReader( stream.readable )
@@ -271,31 +299,6 @@ describe( 'StreamReader', () => {
 			
 			await reader.read()
 			await expect( streamPromise ).rejects.toThrow( 'Streming reader cancelled.' )
-		} )
-
-
-		it( 'allows chunk by chunk transformation', async () => {
-
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader<Buffer, string>( stream.readable )
-
-			streamData( { writer } )
-
-			reader.on( 'data', chunk => {
-				expect( typeof chunk ).toBe( 'string' )
-			} )
-
-			const dataRead = reader.read( String )
-
-			await expect( dataRead ).resolves.toBeInstanceOf( Array )
-			
-			const chunks = ( await dataRead ).map( chunk => {
-				expect( typeof chunk ).toBe( 'string' )
-				return chunk
-			} )
-			expect( chunks ).toEqual( defaultChunks )
-
 		} )
 
 	} )
