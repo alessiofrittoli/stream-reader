@@ -214,6 +214,20 @@ describe( 'StreamReader', () => {
 			} )
 			expect( chunks ).toEqual( defaultChunks )
 		} )
+
+
+		it( 'doen\'t collect in-memory chunks when `inMemory` options is set to `false`', async () => {
+			const stream	= new TransformStream<Buffer, Buffer>()
+			const writer	= stream.writable.getWriter()
+			const reader	= new StreamReader( stream.readable, { inMemory: false } )
+	
+			streamData( { writer } )
+
+			const dataRead = await reader.read()
+
+			expect( dataRead ).toEqual( [] )
+
+		} )
 	} )
 
 

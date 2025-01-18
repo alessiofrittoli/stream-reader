@@ -27,6 +27,8 @@ export interface Options<I = unknown, O = I>
 {
 	/** A function that transforms a chunk of data. */
     transform?: TransformChunk<I, O>
+	/** Allows to opt-out from in-memory chunks collection. */
+	inMemory?: boolean
 }
 
 

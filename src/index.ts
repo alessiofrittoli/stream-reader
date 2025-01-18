@@ -35,6 +35,8 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	 * @private
 	 */
 	private receivedChunks: ReadChunks<O>
+
+	private inMemory: Options<I, O>[ 'inMemory' ]
 	private transform: Options<I, O>[ 'transform' ]
 	
 	
@@ -46,6 +48,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	{
 		super( { captureRejections: true } )
 
+		this.inMemory		= options?.inMemory ?? true
 		this.transform		= options?.transform
 		this.reader			= stream.getReader()
 		this.closed			= false
@@ -70,8 +73,9 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 						? await this.transform( chunk )
 						: chunk as ReadChunk<O>
 				)
-
-				this.receivedChunks.push( processed )
+				if ( this.inMemory ) {
+					this.receivedChunks.push( processed )
+				}
 				this.emit( 'data', processed )
 			}
 			return (
