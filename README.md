@@ -245,7 +245,7 @@ The `StreamReader` class extends the `EventEmitter` class, providing events for 
 
 ```ts
 const reader = new StreamReader( ... )
-reader.on( 'read', chunk => {
+reader.on( 'data', chunk => {
 	console.log( 'received chunk', chunk )
 } )
 ```
@@ -345,7 +345,7 @@ let resourceSize = 0
 if ( response.body ) {
 	const reader	= new StreamReader( response.body )
 	const decoder	= new TextDecoder()
-	reader.on( 'read', chunk => {
+	reader.on( 'data', chunk => {
 		const decoded = decoder.decode( chunk, { stream: true } )
 		resourceSize += chunk.BYTES_PER_ELEMENT * chunk.length
 	} )
@@ -368,7 +368,7 @@ const reader	= new StreamReader<Buffer, string>( stream.readable )
 
 streamData( { writer } )
 
-reader.on( 'read', chunk => {
+reader.on( 'data', chunk => {
 	console.log( chunk ) // chunk is type of string
 } )
 const chunks = await reader.read( chunk => chunk.toString( 'base64url' ) ) // `string[]`

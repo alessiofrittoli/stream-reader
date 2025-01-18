@@ -38,7 +38,7 @@ export type StreamReaderEvents<O = unknown> = {
 	 * Emitted when a chunk of data is read from the stream.
 	 * @param {ReadChunk<O>} chunk - The chunk of data read from the stream.
 	 */
-	read: [ chunk: ReadChunk<O> ]
+	data: [ chunk: ReadChunk<O> ]
 
 
 	/**
@@ -68,7 +68,7 @@ export type StreamReaderEvents<O = unknown> = {
  * 
  * @template O The type of data being read from the stream and eventually transformed before the event is emitted.
  */
-export type OnReadEventListener<O = unknown> = Listener<StreamReaderEvents<O>, 'read'>
+export type OnReadEventListener<O = unknown> = Listener<StreamReaderEvents<O>, 'data'>
 
 
 /**

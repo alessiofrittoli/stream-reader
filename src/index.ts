@@ -55,7 +55,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	 * Asynchronously reads on-demand stream data.
 	 * 
 	 * Optionally transform each chunk using the provided transform function.
-	 * Emits a 'read' event for each chunk after it has been processed.
+	 * Emits a 'data' event for each chunk after it has been processed.
 	 * If an error occurs during the reading process, it is caught and passed to the `error` method.
 	 * 
 	 * @template I - The type of the input chunks.
@@ -69,7 +69,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 			for await ( const chunk of this.readChunks() ) {
 				const processed = ( typeof transform === 'function' ? await transform( chunk ) : chunk ) as ReadChunk<O>
 				this.receivedChunks.push( processed )
-				this.emit( 'read', processed )
+				this.emit( 'data', processed )
 			}
 			return (
 				this.close()
@@ -193,7 +193,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	 */
 	private removeListeners()
 	{
-		this.removeAllListeners( 'read' )
+		this.removeAllListeners( 'data' )
 		this.removeAllListeners( 'close' )
 		this.removeAllListeners( 'cancel' )
 
