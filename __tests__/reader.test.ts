@@ -43,7 +43,7 @@ describe( 'StreamReader', () => {
 		streamData( { writer } )
 
 		const onRead: OnReadEventListener<Buffer> = jest.fn()
-		reader.on( 'read', onRead )
+		reader.on( 'data', onRead )
 		await reader.read()
 		
 		expect( onRead ).toHaveBeenCalledTimes( 2 )
@@ -97,12 +97,12 @@ describe( 'StreamReader', () => {
 	
 		const onRead: OnReadEventListener<Buffer> = jest.fn()
 		const onClose: OnCloseEventListener<Buffer> = jest.fn()
-		reader.on( 'read', onRead )
+		reader.on( 'data', onRead )
 		reader.on( 'close', onClose )
 		
 		await reader.read()
 	
-		expect( reader.listenerCount( 'read' ) ).toBe( 0 )
+		expect( reader.listenerCount( 'data' ) ).toBe( 0 )
 		expect( reader.listenerCount( 'close' ) ).toBe( 0 )
 	} )
 
@@ -163,7 +163,7 @@ describe( 'StreamReader', () => {
 
 		expect( onClose ).toHaveBeenCalledTimes( 0 )
 		expect( onClose2 ).toHaveBeenCalledTimes( 0 )
-		expect( reader.listenerCount( 'read' ) ).toBe( 0 )
+		expect( reader.listenerCount( 'data' ) ).toBe( 0 )
 		expect( reader.listenerCount( 'close' ) ).toBe( 0 )
 	} )
 
@@ -282,7 +282,7 @@ describe( 'StreamReader', () => {
 
 			streamData( { writer } )
 
-			reader.on( 'read', chunk => {
+			reader.on( 'data', chunk => {
 				expect( typeof chunk ).toBe( 'string' )
 			} )
 
