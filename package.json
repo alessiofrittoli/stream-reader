@@ -84,7 +84,7 @@
 		"test:reader": "pnpm test reader.test.ts"
 	},
 	"devDependencies": {
-		"@alessiofrittoli/node-scripts": "^2.3.0",
+		"@alessiofrittoli/node-scripts": "^2.3.1",
 		"@eslint/js": "^9.22.0",
 		"@jest/globals": "^29.7.0",
 		"@types/jest": "^29.5.14",
@@ -103,7 +103,7 @@
 		"typescript-eslint": "^8.26.1"
 	},
 	"dependencies": {
-		"@alessiofrittoli/event-emitter": "^1.2.0"
+		"@alessiofrittoli/event-emitter": "^1.2.1"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
