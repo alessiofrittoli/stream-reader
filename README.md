@@ -1,6 +1,6 @@
 # Stream Reader 📚
 
-[![NPM Latest Version][version-badge]][npm-url] [![Coverage Status][coverage-badge]][coverage-url] [![NPM Monthly Downloads][downloads-badge]][npm-url] [![Dependencies][deps-badge]][deps-url]
+[![NPM Latest Version][version-badge]][npm-url] [![Coverage Status][coverage-badge]][coverage-url] [![Socket Status][socket-badge]][socket-url] [![NPM Monthly Downloads][downloads-badge]][npm-url] [![Dependencies][deps-badge]][deps-url]
 
 [![GitHub Sponsor][sponsor-badge]][sponsor-url]
 
@@ -8,6 +8,8 @@
 [npm-url]: https://npmjs.org/package/%40alessiofrittoli%2Fstream-reader
 [coverage-badge]: https://coveralls.io/repos/github/alessiofrittoli/stream-reader/badge.svg
 [coverage-url]: https://coveralls.io/github/alessiofrittoli/stream-reader
+[socket-badge]: https://socket.dev/api/badge/npm/package/@alessiofrittoli/stream-reader
+[socket-url]: https://socket.dev/npm/package/@alessiofrittoli/stream-reader/overview
 [downloads-badge]: https://img.shields.io/npm/dm/%40alessiofrittoli%2Fstream-reader.svg
 [deps-badge]: https://img.shields.io/librariesio/release/npm/%40alessiofrittoli%2Fstream-reader
 [deps-url]: https://libraries.io/npm/%40alessiofrittoli%2Fstream-reader
