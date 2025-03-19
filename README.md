@@ -2,6 +2,8 @@
 
 [![NPM Latest Version][version-badge]][npm-url] [![Coverage Status][coverage-badge]][coverage-url] [![NPM Monthly Downloads][downloads-badge]][npm-url] [![Dependencies][deps-badge]][deps-url]
 
+[![GitHub Sponsor][sponsor-badge]][sponsor-url]
+
 [version-badge]: https://img.shields.io/npm/v/%40alessiofrittoli%2Fstream-reader
 [npm-url]: https://npmjs.org/package/%40alessiofrittoli%2Fstream-reader
 [coverage-badge]: https://coveralls.io/repos/github/alessiofrittoli/stream-reader/badge.svg
@@ -9,6 +11,9 @@
 [downloads-badge]: https://img.shields.io/npm/dm/%40alessiofrittoli%2Fstream-reader.svg
 [deps-badge]: https://img.shields.io/librariesio/release/npm/%40alessiofrittoli%2Fstream-reader
 [deps-url]: https://libraries.io/npm/%40alessiofrittoli%2Fstream-reader
+
+[sponsor-badge]: https://img.shields.io/static/v1?label=Fund%20this%20package&message=%E2%9D%A4&logo=GitHub&color=%23DB61A2
+[sponsor-url]: https://github.com/sponsors/alessiofrittoli
 
 ## Easly read pushed data from a Stream
 
@@ -28,6 +33,8 @@ The `StreamReader` class is a utility for reading data from a `ReadableStream` i
     - [Error handling](#error-handling)
   - [Types API Reference](#types-api-reference)
 - [Development](#development)
+  - [Install depenendencies](#install-depenendencies)
+  - [Build the source code](#build-the-source-code)
   - [ESLint](#eslint)
   - [Jest](#jest)
 - [Contributing](#contributing)
@@ -593,9 +600,9 @@ or using `pnpm`
 pnpm i
 ```
 
-#### Build your source code
+#### Build the source code
 
-Run the following command to build code for distribution.
+Run the following command to test and build code for distribution.
 
 ```bash
 pnpm build
@@ -615,23 +622,18 @@ Run all the defined test suites by running the following:
 
 ```bash
 # Run tests and watch file changes.
-pnpm test
-
-# Run tests and watch file changes with jest-environment-jsdom.
-pnpm test:jsdom
+pnpm test:watch
 
 # Run tests in a CI environment.
 pnpm test:ci
-
-# Run tests in a CI environment with jest-environment-jsdom.
-pnpm test:ci:jsdom
 ```
 
 You can eventually run specific suits like so:
 
+- See [`package.json`](./package.json) file scripts for more info.
+
 ```bash
 pnpm test:jest
-pnpm test:jest:jsdom
 ```
 
 Run tests with coverage.
@@ -641,15 +643,20 @@ An HTTP server is then started to serve coverage files from `./coverage` folder.
 ⚠️ You may see a blank page the first time you run this command. Simply refresh the browser to see the updates.
 
 ```bash
-pnpm test:coverage
+test:coverage:serve
 ```
 
 ---
 
 ### Contributing
 
-Contributions are truly welcome!\
+Contributions are truly welcome!
+
 Please refer to the [Contributing Doc](./CONTRIBUTING.md) for more information on how to start contributing to this project.
+
+Help keep this project up to date with [GitHub Sponsor][sponsor-url].
+
+[![GitHub Sponsor][sponsor-badge]][sponsor-url]
 
 ---
 
