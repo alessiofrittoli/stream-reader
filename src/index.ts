@@ -3,6 +3,7 @@ import { EventEmitter } from '@alessiofrittoli/event-emitter'
 import { generatorToReadableStream } from './utils'
 import type { ReadChunk, ReadChunks, StreamReaderEvents, Options } from './types'
 
+export type * from './types'
 
 /**
  * A class for reading data from a `ReadableStream` on demand.
