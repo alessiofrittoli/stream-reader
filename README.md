@@ -630,13 +630,7 @@ pnpm test:watch
 pnpm test:ci
 ```
 
-You can eventually run specific suits like so:
-
 - See [`package.json`](./package.json) file scripts for more info.
-
-```bash
-pnpm test:jest
-```
 
 Run tests with coverage.
 
