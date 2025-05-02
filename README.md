@@ -189,11 +189,17 @@ An async iterable object for consuming chunks of data.
 
 ###### `StreamReader.cancel()`
 
-The `StreamReader.cancel()` method it's pretty usefull when stream data reading is no longer needed, regardless of stream writer state.
+Deprecated. Use [`StreamReader.abort()`](#streamreaderabort) method instead.
 
-This method will cancel the reader, release the lock, emit a 'cancel' event, and remove `data`, `close` and `cancel` event listeners.
+---
 
-It emits the `cancel` event.
+###### `StreamReader.abort()`
+
+The `StreamReader.abort()` method it's pretty usefull when stream data reading is no longer needed, regardless of stream writer state.
+
+This method will cancel the reader, release the lock, emit an 'abort' event, and remove `data`, `close` and `abort` event listeners.
+
+It emits the `abort` event.
 
 - See [Listening Events](#listening-events) section for further info.
 
@@ -245,8 +251,8 @@ The `StreamReader` class extends the `EventEmitter` class, providing events for 
 |          | `chunks`  | `ReadChunks<O>` | An array of chunks read from the stream before it was closed. |
 | `error`  |           |                 | Emitted when an error occurs during reading. |
 |          | `error`   | `Error`         | The error that occurred during the reading process. |
-| `cancel` |           |                 | Emitted when the reading process is canceled. |
-|          | `reason`  | `DOMException`  | A DOMException explaing the reason for aborting the operation. |
+| `abort`  |           |                 | Emitted when the reading process is aborted. |
+|          | `reason`  | `AbortError`    | An AbortError explaing the reason for aborting the operation. |
 
 </details>
 
@@ -289,12 +295,12 @@ reader.on( 'error', error => {
 
 ---
 
-###### `cancel` event
+###### `abort` event
 
 ```ts
 const reader = new StreamReader( ... )
-reader.on( 'cancel', reason => {
-  console.log( 'reading cancelled', reason.message )
+reader.on( 'abort', reason => {
+  console.log( 'reading aborted', reason.message )
 } )
 ```
 
@@ -421,7 +427,7 @@ const chunks = await reader.read() // empty `[]`
 
 <details>
 
-<summary>Cancelling the reader before Stream is closed</summary>
+<summary>Aborting the reader before Stream is closed</summary>
 
 ```ts
 const stream  = new TransformStream<Buffer, Buffer>()
@@ -432,8 +438,8 @@ streamData( { writer } )
 
 reader.read()
 
-cancelButton.addEventListener( 'click', () => {
-  reader.cancel( 'Reading no longer needed' )
+abortButton.addEventListener( 'click', () => {
+  reader.abort( 'Reading no longer needed' )
 } )
 ```
 
@@ -519,8 +525,8 @@ Defines event types emitted by the `StreamReader`.
     - **Parameters:** `chunks` (`ReadChunks<O>`)
   - `error`: Emitted when an error occurs during reading.
     - **Parameters:** `error` (`Error`)
-  - `cancel`: Emitted when the reading process is canceled.
-    - **Parameters:** `reason` (`DOMException`)
+  - `abort`: Emitted when the reading process is aborted.
+    - **Parameters:** `reason` (`AbortError`)
 
 ---
 
@@ -563,10 +569,16 @@ Listener for the `close` event.
 
 ##### `OnCancelEventListener`
 
-Listener for the `cancel` event.
+Deprecated. Use [`OnAbortEventListener`](#onaborteventlistener) type instead.
+
+---
+
+##### `OnAbortEventListener`
+
+Listener for the `abort` event.
 
 - **Parameters:**
-  - `reason` (`DOMException`): Explains the reason for aborting the operation.
+  - `reason` (`AbortError`): Explains the reason for aborting the operation.
 
 ---
 
