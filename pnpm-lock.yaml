@@ -11,6 +11,9 @@ importers:
       '@alessiofrittoli/event-emitter':
         specifier: ^1.4.0
         version: 1.4.0
+      '@alessiofrittoli/exception':
+        specifier: ^3.2.0
+        version: 3.2.0
     devDependencies:
       '@alessiofrittoli/node-scripts':
         specifier: ^2.5.0
@@ -65,6 +68,9 @@ packages:
 
   '@alessiofrittoli/event-emitter@1.4.0':
     resolution: {integrity: sha512-dkUsRk6h4k4UAKbPFpXGwB4n/fs+9wVxMCMyf1EU4P1wfqqZXiBmYuuV/GMtTn7qlhIVs+mQHa2jjEN6lHXPbw==}
+
+  '@alessiofrittoli/exception@3.2.0':
+    resolution: {integrity: sha512-YwkeQTXrIo1Iy1yA0htonNmiTC1CUL324dlC3GIKhulmWzTDjqZVXT8tBsBjhvdGLkCxj4MMvkdg/Oa9ucOspg==}
 
   '@alessiofrittoli/node-scripts@2.5.0':
     resolution: {integrity: sha512-K6o0ZJgWb8HAbiBU7ajdlNY8UsrAlcLHO2WAx9pPoxjLKC/QR/PnNE+zLgc+z1q4TefS2UsS1VsUAUjQI/Ro4g==}
@@ -2276,6 +2282,8 @@ packages:
 snapshots:
 
   '@alessiofrittoli/event-emitter@1.4.0': {}
+
+  '@alessiofrittoli/exception@3.2.0': {}
 
   '@alessiofrittoli/node-scripts@2.5.0': {}
 
