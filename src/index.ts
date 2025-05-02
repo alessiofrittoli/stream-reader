@@ -1,4 +1,5 @@
 import { EventEmitter } from '@alessiofrittoli/event-emitter'
+import { AbortError, type AbortErrorOptions } from '@alessiofrittoli/exception/abort'
 
 import { generatorToReadableStream } from './utils'
 import type { ReadChunk, ReadChunks, StreamReaderEvents, Options } from './types'
@@ -130,11 +131,13 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	/**
 	 * Cancels the streaming reader operation.
 	 *
-	 * @param reason - Optional reason for aborting the operation.
+	 * @deprecated Use {@link StreamReader.abort} instead.
+	 * 
+	 * @param reason Optional reason for aborting the operation.
 	 * @returns A new Promise that resolves the `StreamReader` for chaining purposes after aborting.
 	 *
 	 * @remarks
-	 * This method will cancel the reader, release the lock, emit an 'cancel' event, and remove listeners.
+	 * This method will cancel the reader, release the lock, emit a 'cancel' event, and remove listeners.
 	 */
 	async cancel( reason?: string )
 	{
@@ -144,6 +147,31 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 		const exception	= new DOMException( reason || 'Streming reader cancelled.', 'AbortError' )
 		exception.cause = DOMException.ABORT_ERR
 		this.emit( 'cancel', exception )
+
+		await this.reader.cancel( exception )
+		this.reader.releaseLock()
+
+		return this.removeListeners()
+	}
+	
+	
+	/**
+	 * Cancels the streaming reader operation.
+	 *
+	 * @param reason Optional reason for aborting the operation.
+	 * @returns A new Promise that resolves the `StreamReader` for chaining purposes after aborting.
+	 *
+	 * @remarks
+	 * This method will cancel the reader, release the lock, emit an 'abort' event, and remove listeners.
+	 */
+	async abort( reason: string = 'Streming reader aborted.', options?: AbortErrorOptions )
+	{
+		if ( this.closed ) return this
+		
+		this.closed		= true
+		const exception	= new AbortError( reason, options )
+		
+		this.emit( 'abort', exception )
 
 		await this.reader.cancel( exception )
 		this.reader.releaseLock()

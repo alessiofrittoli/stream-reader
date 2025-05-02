@@ -1,4 +1,5 @@
 import type { Listener } from '@alessiofrittoli/event-emitter'
+import { AbortError } from '@alessiofrittoli/exception/abort'
 
 /**
  * Represents a chunk of data that can be read, which can either be of type `T` or a promise that resolves to `T`.
@@ -71,10 +72,18 @@ export type StreamReaderEvents<O = unknown> = {
 
 
 	/**
-	 * Emitted when the reading process is canceled.
+	 * Emitted when the reading process is cancelled.
+	 * @deprecated Use {@link StreamReaderEvents.abort} instead.
 	 * @param reason A DOMException explaing the reason for aborting the operation.
 	 */
 	cancel: [ reason: DOMException ]
+
+
+	/**
+	 * Emitted when the reading process is aborted.
+	 * @param reason An AbortError explaing the reason for aborting the operation.
+	 */
+	abort: [ reason: AbortError ]
 }
 
 
@@ -101,8 +110,20 @@ export type OnCloseEventListener<O = unknown> = Listener<StreamReaderEvents<O>, 
  * This type represents a listener function that is invoked when an 'abort' event occurs.
  * It is used to define the shape of the listener function that can be registered to handle
  * such events.
+ * 
+ * @deprecated Use {@link OnAbortEventListener} instead.
  */
 export type OnCancelEventListener = Listener<StreamReaderEvents, 'cancel'>
+
+
+/**
+ * Listener for the "abort" event.
+ * 
+ * This type represents a listener function that is invoked when an 'abort' event occurs.
+ * It is used to define the shape of the listener function that can be registered to handle
+ * such events.
+ */
+export type OnAbortEventListener = Listener<StreamReaderEvents, 'abort'>
 
 
 /**

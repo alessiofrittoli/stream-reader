@@ -93,7 +93,8 @@
 		"typescript-eslint": "^8.31.1"
 	},
 	"dependencies": {
-		"@alessiofrittoli/event-emitter": "^1.4.0"
+		"@alessiofrittoli/event-emitter": "^1.4.0",
+		"@alessiofrittoli/exception": "^3.2.0"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
