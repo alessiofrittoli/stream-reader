@@ -90,15 +90,15 @@
 		"test:coverage:serve": "concurrently --prefix none --kill-others \"pnpm test:coverage\" \"pnpm test:serve-coverage\""
 	},
 	"devDependencies": {
-		"@alessiofrittoli/node-scripts": "^3.2.0",
-		"@eslint/js": "^9.39.1",
+		"@alessiofrittoli/node-scripts": "^3.3.0",
+		"@eslint/js": "^9.39.2",
 		"@jest/globals": "^30.2.0",
 		"@types/jest": "^30.0.0",
-		"@types/node": "^24.10.1",
+		"@types/node": "^25.0.3",
 		"concurrently": "^9.2.1",
 		"cross-env": "^10.1.0",
 		"dotenv": "^17.2.3",
-		"eslint": "^9.39.1",
+		"eslint": "^9.39.2",
 		"globals": "^16.5.0",
 		"http-server": "^14.1.1",
 		"jest": "^30.2.0",
@@ -106,10 +106,10 @@
 		"ts-node": "^10.9.2",
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.48.1"
+		"typescript-eslint": "^8.50.1"
 	},
 	"dependencies": {
 		"@alessiofrittoli/event-emitter": "^1.6.0",
-		"@alessiofrittoli/exception": "^3.3.1"
+		"@alessiofrittoli/exception": "^3.5.0"
 	}
 }
