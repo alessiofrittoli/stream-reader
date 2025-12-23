@@ -14,6 +14,9 @@ importers:
       '@alessiofrittoli/exception':
         specifier: ^3.3.1
         version: 3.3.1
+      '@alessiofrittoli/math-utils':
+        specifier: ^1.17.0
+        version: 1.17.0
     devDependencies:
       '@alessiofrittoli/node-scripts':
         specifier: ^3.2.0
@@ -75,17 +78,29 @@ packages:
   '@alessiofrittoli/chain-functions@2.5.0':
     resolution: {integrity: sha512-T880cNaHMIU11vj3Qn4gEusew1ZcuCoWNEgwX9RzlGNmElxW/Td580+kT7y2QXO1BWBlXsvHRhbRMPIpAyTTYw==}
 
+  '@alessiofrittoli/date-utils@4.1.0':
+    resolution: {integrity: sha512-87yQ/LrY63pCUIj6MUfAeGY2RGQG9eRKvfR7yc8cF59oiXxAuHz+qUbqCiH9dmzwtwCDtOjInEoeVYR8nKNyMA==}
+
   '@alessiofrittoli/event-emitter@1.6.0':
     resolution: {integrity: sha512-Fu1VZGUbxjZfhwUzoAia0iXQwbjSID17VcsASjXFua1+oxqKAjBofayLZ8BMRGsGwHNeyycax0fSwZd2SI6uzA==}
 
   '@alessiofrittoli/exception@3.3.1':
     resolution: {integrity: sha512-K6/NfWGNAoPQgoMdU0RTvj3qi8qaara6IXboHEfVr7vaTaTOdwozGNaISFJ2LMjridP5lrq1J3YLtWCnhib/Zw==}
 
+  '@alessiofrittoli/math-utils@1.17.0':
+    resolution: {integrity: sha512-WMvxBljj2Ahyv8xPyiy1lESUO5Poq9edYr1pZS+KawodDU2k+d0hWAz7KDQymCCzAz4YkuLkr0CDl0k85t0RhA==}
+
   '@alessiofrittoli/node-scripts@3.2.0':
     resolution: {integrity: sha512-2hjjsUpaNFUQsVIZR0AOkYPMPAuFtgr1zQDDLJucqGXljLy4fVXViLFiVioXg6RwJgOVs/HDjAmqf7WZuah5tQ==}
 
   '@alessiofrittoli/type-utils@1.9.0':
     resolution: {integrity: sha512-YtbIEvMc3i8KrY22a84WJXa+qWEyr0POpVsNhWIZMU3c23BX1AHcrdFTdYac5h3apdhu/uRrSUDjOkGO/Vie0Q==}
+
+  '@alessiofrittoli/url-utils@3.7.1':
+    resolution: {integrity: sha512-d4IY0H2lQoXt8Iq3riD7nYvfa+VEAnkBh2R9mvZNxbqQo0TmGc32+mf0w+FKviZ/xth2JhusVoSG804dHXHIdg==}
+
+  '@alessiofrittoli/web-utils@1.19.0':
+    resolution: {integrity: sha512-P7ckpkGJGty9uyA16GBTdpn910sjI5wZrJtpde6bCRdQkgvxlpi0ThwzQGza/IVXf5SDnWdiCTpt5sfIi7OLjQ==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -2493,9 +2508,18 @@ snapshots:
 
   '@alessiofrittoli/chain-functions@2.5.0': {}
 
+  '@alessiofrittoli/date-utils@4.1.0':
+    dependencies:
+      '@alessiofrittoli/math-utils': 1.17.0
+      '@alessiofrittoli/type-utils': 1.9.0
+
   '@alessiofrittoli/event-emitter@1.6.0': {}
 
   '@alessiofrittoli/exception@3.3.1': {}
+
+  '@alessiofrittoli/math-utils@1.17.0':
+    dependencies:
+      '@alessiofrittoli/web-utils': 1.19.0
 
   '@alessiofrittoli/node-scripts@3.2.0':
     dependencies:
@@ -2508,6 +2532,17 @@ snapshots:
     dependencies:
       '@alessiofrittoli/chain-functions': 2.5.0
       '@alessiofrittoli/node-scripts': 3.2.0
+
+  '@alessiofrittoli/url-utils@3.7.1':
+    dependencies:
+      '@alessiofrittoli/web-utils': 1.19.0
+
+  '@alessiofrittoli/web-utils@1.19.0':
+    dependencies:
+      '@alessiofrittoli/date-utils': 4.1.0
+      '@alessiofrittoli/math-utils': 1.17.0
+      '@alessiofrittoli/type-utils': 1.9.0
+      '@alessiofrittoli/url-utils': 3.7.1
 
   '@ampproject/remapping@2.3.0':
     dependencies:

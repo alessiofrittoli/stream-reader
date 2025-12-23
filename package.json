@@ -110,6 +110,7 @@
 	},
 	"dependencies": {
 		"@alessiofrittoli/event-emitter": "^1.6.0",
-		"@alessiofrittoli/exception": "^3.3.1"
+		"@alessiofrittoli/exception": "^3.3.1",
+		"@alessiofrittoli/math-utils": "^1.17.0"
 	}
 }
