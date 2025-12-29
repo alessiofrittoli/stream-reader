@@ -23,7 +23,7 @@ export type ReadChunks<O = unknown> = ReadChunk<O>[]
  * 
  * @template I			The type of the input chunk. Defaults to `unknown`.
  * @template O			The type of the output chunk. Defaults to `I`.
- * @template InMemory	Defines the `inMemory` option value set in the `StreamReader` constructor.
+ * @template InMemory	A boolean flag that changes types behaviors based on its value.
  */
 export type ReadReturnType<
 	I = unknown,
@@ -35,8 +35,9 @@ export type ReadReturnType<
 /**
  * Custom additional options.
  * 
- * @template I The type of the input chunk. Defaults to `unknown`.
- * @template O The type of the output chunk. Defaults to `I`.
+ * @template I			The type of the input chunk. Defaults to `unknown`.
+ * @template O			The type of the output chunk. Defaults to `I`.
+ * @template InMemory	A boolean flag that changes types behaviors based on its value.
  */
 export interface Options<I = unknown, O = I, InMemory extends boolean = true>
 {
@@ -61,7 +62,9 @@ export type TransformChunk<I = unknown, O = I> = ( chunk: ReadChunk<I> ) => ( Re
 
 /**
  * Event types emitted by the StreamReader.
- * @template O The type of data being read from the stream and eventually transformed before the event is emitted.
+ * 
+ * @template O			The type of data being read from the stream and eventually transformed before the event is emitted.
+ * @template InMemory	A boolean flag that changes types behaviors based on its value.
  */
 export type StreamReaderEvents<O = unknown, InMemory extends boolean = true> = {
 	/**

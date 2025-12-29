@@ -11,8 +11,9 @@ export type * from './types'
 /**
  * A class for reading data from a `ReadableStream` on demand.
  * 
- * @template I The type of input data being read from the stream.
- * @template O The type of output data transformed after reading from the stream. Defaults to the same type of `I`.
+ * @template I			The type of input data being read from the stream.
+ * @template O			The type of output data transformed after reading from the stream. Defaults to the same type of `I`.
+ * @template InMemory	A boolean flag that changes types behaviors based on its value.
  * 
  * @extends EventEmitter<StreamReaderEvents<O>>
  * 
@@ -186,7 +187,7 @@ export class StreamReader<
 		this.emit( 'close', (
 			this.inMemory ? this.chunks : undefined
 		) as InMemory extends true ? ReadChunks<O> : void )
-		
+
 		return this.removeListeners()
 	}
 
