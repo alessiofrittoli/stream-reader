@@ -11,8 +11,9 @@ export type * from './types'
 /**
  * A class for reading data from a `ReadableStream` on demand.
  * 
- * @template I The type of input data being read from the stream.
- * @template O The type of output data transformed after reading from the stream. Defaults to the same type of `I`.
+ * @template I			The type of input data being read from the stream.
+ * @template O			The type of output data transformed after reading from the stream. Defaults to the same type of `I`.
+ * @template InMemory	A boolean flag that changes types behaviors based on its value.
  * 
  * @extends EventEmitter<StreamReaderEvents<O>>
  * 
@@ -27,7 +28,10 @@ export type * from './types'
  * 
  * @returns A new instance of `StreamReader`.
  */
-export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> extends EventEmitter<StreamReaderEvents<O>>
+export class StreamReader<
+	I = unknown, O = I,
+	InMemory extends boolean = true
+> extends EventEmitter<StreamReaderEvents<O, InMemory>>
 {
 	/** The reader obtained from the input `ReadableStream`. */
 	reader: ReadableStreamDefaultReader<I>
@@ -179,7 +183,11 @@ export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> e
 		if ( this.closed ) return this
 		this.closed = true
 		this.reader.releaseLock()
-		this.emit( 'close', this.chunks )
+
+		this.emit( 'close', (
+			this.inMemory ? this.chunks : undefined
+		) as InMemory extends true ? ReadChunks<O> : void )
+
 		return this.removeListeners()
 	}
 
