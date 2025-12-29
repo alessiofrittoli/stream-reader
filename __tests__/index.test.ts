@@ -233,7 +233,7 @@ describe( 'StreamReader', () => {
 		} )
 
 
-		it( 'doen\'t collect in-memory chunks when `inMemory` options is set to `false`', async () => {
+		it( 'doesn\'t collect in-memory chunks and returns void if `inMemory` option is set to `false`', async () => {
 
 			const stream	= new TransformStream<Buffer, Buffer>()
 			const writer	= stream.writable.getWriter()
@@ -241,11 +241,23 @@ describe( 'StreamReader', () => {
 	
 			streamData( { writer } )
 
-			const dataRead = await reader.read()
+			expect( await reader.read() ).toBeUndefined()
 
-			expect( dataRead ).toEqual( [] )
+
+			const stream2	= new TransformStream<Buffer, Buffer>()
+			const writer2	= stream2.writable.getWriter()
+			const reader2	= new StreamReader( stream2.readable, { inMemory: false } )
+	
+			streamData( { writer: writer2, chunks: erroredChunks } )
+				.catch( error => {
+					writer2.abort( error )
+				} )
+			
+			reader2.on( 'error', () => {} )
+			expect( await reader2.read() ).toBeUndefined()
 
 		} )
+		
 	} )
 
 

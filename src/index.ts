@@ -2,7 +2,9 @@ import { EventEmitter } from '@alessiofrittoli/event-emitter'
 import { AbortError, type AbortErrorOptions } from '@alessiofrittoli/exception/abort'
 
 import { generatorToReadableStream } from './utils'
-import type { ReadChunk, ReadChunks, StreamReaderEvents, Options } from './types'
+import type {
+	ReadChunk, ReadChunks, ReadReturnType, StreamReaderEvents, Options,
+} from './types'
 
 export type * from './types'
 
@@ -25,36 +27,38 @@ export type * from './types'
  * 
  * @returns A new instance of `StreamReader`.
  */
-export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderEvents<O>>
+export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> extends EventEmitter<StreamReaderEvents<O>>
 {
 	/** The reader obtained from the input `ReadableStream`. */
 	reader: ReadableStreamDefaultReader<I>
 	/** Indicates whether the stream has been closed. */
 	closed: boolean
 	/**
-	 * Stores the chunks of data that have been received.
+	 * Stores the chunks of data that have been read.
 	 * 
 	 * @private
 	 */
-	private receivedChunks: ReadChunks<O>
+	private chunks: ReadChunks<O>
 
-	private inMemory: Options<I, O>[ 'inMemory' ]
-	private transform: Options<I, O>[ 'transform' ]
+	private inMemory: NonNullable<Options<I, O, InMemory>[ 'inMemory' ]>
+	private transform: Options<I, O, InMemory>[ 'transform' ]
 	
 	
 	/**
 	 * Creates an instance of `StreamReader`.
-	 * @param stream The input `ReadableStream<T>` to read data from.
+	 * 
+	 * @param stream	The input `ReadableStream<T>` to read data from.
+	 * @param options	(Optional) An object defining additional options. See {@link Options} for more info.
 	 */
-	constructor( stream: ReadableStream<I>, options?: Options<I, O> )
+	constructor( stream: ReadableStream<I>, options?: Options<I, O, InMemory> )
 	{
 		super( { captureRejections: true } )
 
-		this.inMemory		= options?.inMemory ?? true
-		this.transform		= options?.transform
-		this.reader			= stream.getReader()
-		this.closed			= false
-		this.receivedChunks	= []
+		this.inMemory	= ( options?.inMemory ?? true ) as InMemory
+		this.transform	= options?.transform
+		this.reader		= stream.getReader()
+		this.closed		= false
+		this.chunks		= []
 	}
 
 
@@ -64,9 +68,9 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 	 * Emits a 'data' event for each chunk after it has been processed.
 	 * If an error occurs during the reading process, it is caught and passed to the `error` method.
 	 * 
-	 * @returns A new Promise that resolves to an array of processed chunks if the given `options.inMemory` is `true`.
+	 * @returns A new Promise that resolves to an array of processed chunks if the given `options.inMemory` is set to `true`, `void` otherwise.
 	 */
-	async read()
+	async read(): Promise<ReadReturnType<I, O, InMemory>>
 	{
 		try {
 			for await ( const chunk of this.readChunks() ) {
@@ -76,19 +80,24 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 						: chunk as ReadChunk<O>
 				)
 				if ( this.inMemory ) {
-					this.receivedChunks.push( processed )
+					this.chunks.push( processed )
 				}
 				this.emit( 'data', processed )
 			}
-			return (
-				this.close()
-					.receivedChunks
-			)
+
+			this.close()
+
+			if ( this.inMemory ) {
+				return this.chunks as ReadReturnType<I, O, InMemory>
+			}
+
+			return undefined as ReadReturnType<I, O, InMemory>
 		} catch ( error ) {
-			return (
-				this.error( error as Error )
-					.receivedChunks
-			)
+			this.error( error as Error )
+			if ( this.inMemory ) {
+				return this.chunks as ReadReturnType<I, O, InMemory>
+			}
+			return undefined as ReadReturnType<I, O, InMemory>
 		}
 	}
 
@@ -197,7 +206,7 @@ export class StreamReader<I = unknown, O = I> extends EventEmitter<StreamReaderE
 		if ( this.closed ) return this
 		this.closed = true
 		this.reader.releaseLock()
-		this.emit( 'close', this.receivedChunks )
+		this.emit( 'close', this.chunks )
 		return this.removeListeners()
 	}
 

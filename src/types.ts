@@ -19,17 +19,31 @@ export type ReadChunks<O = unknown> = ReadChunk<O>[]
 
 
 /**
+ * Represents the return type of the `StreamReader.read()` method.
+ * 
+ * @template I			The type of the input chunk. Defaults to `unknown`.
+ * @template O			The type of the output chunk. Defaults to `I`.
+ * @template InMemory	Defines the `inMemory` option value set in the `StreamReader` constructor.
+ */
+export type ReadReturnType<
+	I = unknown,
+	O = I,
+	InMemory extends boolean = true
+> = InMemory extends true ? ReadChunks<O> : void
+
+
+/**
  * Custom additional options.
  * 
  * @template I The type of the input chunk. Defaults to `unknown`.
  * @template O The type of the output chunk. Defaults to `I`.
  */
-export interface Options<I = unknown, O = I>
+export interface Options<I = unknown, O = I, InMemory extends boolean = true>
 {
 	/** A function that transforms a chunk of data. */
     transform?: TransformChunk<I, O>
 	/** Allows to opt-out from in-memory chunks collection. */
-	inMemory?: boolean
+	inMemory?: InMemory
 }
 
 
