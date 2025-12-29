@@ -27,7 +27,10 @@ export type * from './types'
  * 
  * @returns A new instance of `StreamReader`.
  */
-export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> extends EventEmitter<StreamReaderEvents<O>>
+export class StreamReader<
+	I = unknown, O = I,
+	InMemory extends boolean = true
+> extends EventEmitter<StreamReaderEvents<O, InMemory>>
 {
 	/** The reader obtained from the input `ReadableStream`. */
 	reader: ReadableStreamDefaultReader<I>
@@ -179,7 +182,11 @@ export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> e
 		if ( this.closed ) return this
 		this.closed = true
 		this.reader.releaseLock()
-		this.emit( 'close', this.chunks )
+
+		this.emit( 'close', (
+			this.inMemory ? this.chunks : undefined
+		) as InMemory extends true ? ReadChunks<O> : void )
+		
 		return this.removeListeners()
 	}
 

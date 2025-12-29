@@ -63,7 +63,7 @@ export type TransformChunk<I = unknown, O = I> = ( chunk: ReadChunk<I> ) => ( Re
  * Event types emitted by the StreamReader.
  * @template O The type of data being read from the stream and eventually transformed before the event is emitted.
  */
-export type StreamReaderEvents<O = unknown> = {
+export type StreamReaderEvents<O = unknown, InMemory extends boolean = true> = {
 	/**
 	 * Emitted when a chunk of data is read from the stream.
 	 * @param chunk The chunk of data read from the stream.
@@ -75,7 +75,7 @@ export type StreamReaderEvents<O = unknown> = {
 	 * Emitted when the stream is closed.
 	 * @param chunks An array of chunks read from the stream before it was closed.
 	 */
-	close: [ chunks: ReadChunks<O> ]
+	close: [ chunks: InMemory extends true ? ReadChunks<O> : void ]
 
 
 	/**
