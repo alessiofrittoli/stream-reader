@@ -179,12 +179,6 @@ An async iterable object for consuming chunks of data.
 
 ---
 
-###### `StreamReader.cancel()`
-
-Deprecated. Use [`StreamReader.abort()`](#streamreaderabort) method instead.
-
----
-
 ###### `StreamReader.abort()`
 
 The `StreamReader.abort()` method it's pretty usefull when stream data reading is no longer needed, regardless of stream writer state.

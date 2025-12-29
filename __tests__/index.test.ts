@@ -3,7 +3,6 @@ import { ErrorCode } from '@alessiofrittoli/exception/code'
 
 import { StreamReader } from '@/index'
 import type {
-	OnCancelEventListener,
 	OnCloseEventListener,
 	OnErrorEventListener,
 	OnDataEventListener,
@@ -258,103 +257,6 @@ describe( 'StreamReader', () => {
 
 		} )
 		
-	} )
-
-
-	describe( 'StreamReader.cancel()', () => {
-
-		it( 'allows to cancel the reader before stream get closed', async () => {
-
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
-			
-			const streamPromise = streamData( { writer } )
-			
-			reader.on( 'data', () => {
-				// cancel when first chunk is read.
-				reader.cancel( 'User cancelled the data reading.' )
-			} )
-
-			const dataRead = reader.read()
-
-			const finalChunks = (
-				( await dataRead )
-					.map( chunk => Buffer.from( chunk ).toString() )
-			)
-			
-			expect( finalChunks ).toEqual( [ defaultChunks.at( 0 ) ] )
-			await expect( () => streamPromise ).rejects.toThrow( 'User cancelled the data reading.' )
-			
-		} )
-
-		
-		it( 'emit \'cancel\' Event when the reader get cancelled', async () => {
-
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
-
-
-			streamData( { writer } )
-				.catch( () => {					
-					writer.releaseLock()
-				} )
-
-			const onCancel: OnCancelEventListener = jest.fn()
-			reader.on( 'cancel', onCancel )
-			
-			reader.on( 'data', () => {
-				// cancel when first chunk is read.
-				reader.cancel( 'User cancelled the data reading.' )
-			} )
-			
-			await reader.read()
-			expect( onCancel ).toHaveBeenCalledTimes( 1 )
-			expect( onCancel ).toHaveBeenCalledWith( expect.any( DOMException ) )
-
-		} )
-
-
-		it( 'skips cancel if already closed', async () => {
-
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
-
-			streamData( { writer } )
-
-			const onCancel: OnCancelEventListener = jest.fn()
-			reader.on( 'cancel', onCancel )
-			reader.on( 'close', () => reader.cancel( 'User cancelled the data reading.' ) )
-						
-			await reader.read()
-			expect( onCancel ).toHaveBeenCalledTimes( 0 )
-
-		} )
-
-
-		it( 'cancel the reader with a default reason message', async () => {
-
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
-
-			const streamPromise = streamData( { writer } )
-
-			const onCancel: OnCancelEventListener = jest.fn()
-			reader.on( 'cancel', onCancel )
-			
-			reader.on( 'data', () => {
-				// cancel when first chunk is read.
-				reader.cancel()
-			} )
-			
-			await reader.read()
-			await expect( () => streamPromise ).rejects.toThrow( 'Streming reader cancelled.' )
-
-		} )
-
 	} )
 	
 	
