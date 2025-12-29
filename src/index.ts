@@ -135,33 +135,6 @@ export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> e
 			readResult = await reader.read()
 		}
 	}
-
-
-	/**
-	 * Cancels the streaming reader operation.
-	 *
-	 * @deprecated Use {@link StreamReader.abort} instead.
-	 * 
-	 * @param reason Optional reason for aborting the operation.
-	 * @returns A new Promise that resolves the `StreamReader` for chaining purposes after aborting.
-	 *
-	 * @remarks
-	 * This method will cancel the reader, release the lock, emit a 'cancel' event, and remove listeners.
-	 */
-	async cancel( reason?: string )
-	{
-		if ( this.closed ) return this
-		
-		this.closed		= true
-		const exception	= new DOMException( reason || 'Streming reader cancelled.', 'AbortError' )
-		exception.cause = DOMException.ABORT_ERR
-		this.emit( 'cancel', exception )
-
-		await this.reader.cancel( exception )
-		this.reader.releaseLock()
-
-		return this.removeListeners()
-	}
 	
 	
 	/**
@@ -194,7 +167,7 @@ export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> e
 	 * 
 	 * Emits the `close` event.
 	 * 
-	 * @private This method is meant to be internally used when the stream writer get closed. Use `StreamReader.cancel()` method if you need to stop reading before stream writer complete his task.
+	 * @private This method is meant to be internally used when the stream writer get closed. Use `StreamReader.abort()` method if you need to stop reading before stream writer complete his task.
 	 * @returns `StreamReader` for chaining purposes.
 	 * 
 	 * @remarks

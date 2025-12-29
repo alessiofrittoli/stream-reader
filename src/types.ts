@@ -117,19 +117,6 @@ export type OnDataEventListener<O = unknown> = Listener<StreamReaderEvents<O>, '
 export type OnCloseEventListener<O = unknown> = Listener<StreamReaderEvents<O>, 'close'>
 
 
-
-/**
- * Listener for the "abort" event.
- * 
- * This type represents a listener function that is invoked when an 'abort' event occurs.
- * It is used to define the shape of the listener function that can be registered to handle
- * such events.
- * 
- * @deprecated Use {@link OnAbortEventListener} instead.
- */
-export type OnCancelEventListener = Listener<StreamReaderEvents, 'cancel'>
-
-
 /**
  * Listener for the "abort" event.
  * 
