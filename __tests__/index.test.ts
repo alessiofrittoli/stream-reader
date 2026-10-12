@@ -12,7 +12,7 @@ import { StreamReader } from '@/index'
 const sleep = (ms: number): Promise<void> => new Promise<void>(resolve => setTimeout(resolve, ms))
 
 describe('StreamReader', () => {
-	const errorChunk = new Exception('Test Error', { code: ErrorCode.QUOTA_REACHED })
+	const errorChunk = new Exception({ message: 'Test Error', code: ErrorCode.QUOTA_REACHED })
 	const defaultChunks = ['data 1', 'data 2']
 	const erroredChunks = ['data 1', errorChunk, 'data 2']
 
