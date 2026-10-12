@@ -34,7 +34,7 @@ The `StreamReader` class is a utility for reading data from a `ReadableStream` i
     - [Error handling](#error-handling)
   - [Types API Reference](#types-api-reference)
 - [Development](#development)
-  - [Install depenendencies](#install-depenendencies)
+  - [Install dependencies](#install-dependencies)
   - [Build the source code](#build-the-source-code)
   - [ESLint](#eslint)
   - [Jest](#jest)
@@ -93,10 +93,10 @@ const reader2 = new StreamReader<Buffer, string>( ... )
 <summary>Automatically inferred type</summary>
 
 ```ts
-type Input = Buffer;
-type Output = Buffer;
-const stream = new TransformStream<Input, Output>();
-const reader = new StreamReader(stream.readable); // type of `StreamReader<Output, Output>`
+type Input = Buffer
+type Output = Buffer
+const stream = new TransformStream<Input, Output>()
+const reader = new StreamReader(stream.readable) // type of `StreamReader<Output, Output>`
 ```
 
 </details>
@@ -299,30 +299,29 @@ reader.on( 'abort', reason => {
 In the following examples we reference `streamData` which is an async function that writes data and closes the stream once finished:
 
 ```ts
-const sleep = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
 
-const defaultChunks = ["data 1", "data 2"];
-const erroredChunks = ["data 1", new Error("Test Error"), "data 2"];
+const defaultChunks = ['data 1', 'data 2']
+const erroredChunks = ['data 1', new Error('Test Error'), 'data 2']
 
 const streamData = async ({
   writer,
   chunks,
 }: {
-  writer: WritableStreamDefaultWriter<Buffer>;
-  chunks?: (string | Error)[];
+  writer: WritableStreamDefaultWriter<Buffer>
+  chunks?: (string | Error)[]
 }) => {
-  chunks ||= defaultChunks;
+  chunks ||= defaultChunks
   for await (const chunk of chunks) {
     if (chunk instanceof Error) {
-      throw chunk;
+      throw chunk
     }
-    await writer.write(Buffer.from(chunk));
-    await sleep(50);
+    await writer.write(Buffer.from(chunk))
+    await sleep(50)
   }
-  await writer.close();
-  writer.releaseLock();
-};
+  await writer.close()
+  writer.releaseLock()
+}
 ```
 
 <details>
@@ -330,13 +329,13 @@ const streamData = async ({
 <summary>Basic usage</summary>
 
 ```ts
-const stream = new TransformStream<Buffer, Buffer>();
-const writer = stream.writable.getWriter();
-const reader = new StreamReader(stream.readable);
+const stream = new TransformStream<Buffer, Buffer>()
+const writer = stream.writable.getWriter()
+const reader = new StreamReader(stream.readable)
 
-streamData({ writer });
+streamData({ writer })
 
-const chunks = await reader.read();
+const chunks = await reader.read()
 ```
 
 </details>
@@ -371,20 +370,20 @@ if ( response.body ) {
 <summary>Transforming read chunks</summary>
 
 ```ts
-const stream = new TransformStream<Buffer, Buffer>();
-const writer = stream.writable.getWriter();
+const stream = new TransformStream<Buffer, Buffer>()
+const writer = stream.writable.getWriter()
 const reader = new StreamReader<Buffer, string>(stream.readable, {
   transform(chunk) {
-    return chunk.toString("base64url");
+    return chunk.toString('base64url')
   },
-});
+})
 
-streamData({ writer });
+streamData({ writer })
 
-reader.on("data", (chunk) => {
-  console.log(chunk); // chunk is now a base64url string
-});
-const chunks = await reader.read(); // `string[]`
+reader.on('data', chunk => {
+  console.log(chunk) // chunk is now a base64url string
+})
+const chunks = await reader.read() // `string[]`
 ```
 
 </details>
@@ -396,17 +395,17 @@ const chunks = await reader.read(); // `string[]`
 <summary>Opting-out from in-memory chunk collection</summary>
 
 ```ts
-const inMemory = false;
-const stream = new TransformStream<Buffer, Buffer>();
-const writer = stream.writable.getWriter();
-const reader = new StreamReader(stream.readable, { inMemory });
+const inMemory = false
+const stream = new TransformStream<Buffer, Buffer>()
+const writer = stream.writable.getWriter()
+const reader = new StreamReader(stream.readable, { inMemory })
 
-streamData({ writer });
+streamData({ writer })
 
-reader.on("data", (chunk) => {
-  console.log(chunk);
-});
-const chunks = await reader.read(); // void
+reader.on('data', chunk => {
+  console.log(chunk)
+})
+const chunks = await reader.read() // void
 ```
 
 </details>
@@ -418,17 +417,17 @@ const chunks = await reader.read(); // void
 <summary>Aborting the reader before Stream is closed</summary>
 
 ```ts
-const stream = new TransformStream<Buffer, Buffer>();
-const writer = stream.writable.getWriter();
-const reader = new StreamReader(stream.readable);
+const stream = new TransformStream<Buffer, Buffer>()
+const writer = stream.writable.getWriter()
+const reader = new StreamReader(stream.readable)
 
-streamData({ writer });
+streamData({ writer })
 
-reader.read();
+reader.read()
 
-abortButton.addEventListener("click", () => {
-  reader.abort("Reading no longer needed");
-});
+abortButton.addEventListener('click', () => {
+  reader.abort('Reading no longer needed')
+})
 ```
 
 </details>
@@ -445,20 +444,20 @@ In that case, you need to await and wrap the `StreamReader.read()` method call i
 
 ```ts
 try {
-  const chunks = await reader.read();
+  const chunks = await reader.read()
 } catch (err) {
-  const error = err as Error;
-  console.error("An error occured", error.message);
+  const error = err as Error
+  console.error('An error occured', error.message)
 }
 ```
 
 with `error` event listener:
 
 ```ts
-reader.read();
-reader.on("error", (error) => {
-  console.error("An error occured", error.message);
-});
+reader.read()
+reader.on('error', error => {
+  console.error('An error occured', error.message)
+})
 ```
 
 ---
@@ -488,12 +487,10 @@ Represents an array of `ReadChunk` objects.
 A function that transforms a chunk of data.
 
 - **Type Parameters:**
-
   - `I`: The type of the input chunk. Defaults to `unknown`.
   - `O`: The type of the output chunk. Defaults to `I`.
 
 - **Parameters:**
-
   - `chunk`: The chunk of data to be transformed.
 
 - **Returns:**  
@@ -506,7 +503,6 @@ A function that transforms a chunk of data.
 Defines event types emitted by the `StreamReader`.
 
 - **Type Parameter:**
-
   - `O`: The type of data being read from the stream and eventually transformed before the event is emitted.
 
 - **Event Types:**
@@ -526,7 +522,6 @@ Defines event types emitted by the `StreamReader`.
 A listener function for events emitted by the `StreamReader`.
 
 - **Type Parameters:**
-
   - `K`: The event type to listen for.
   - `O`: The type of data being read from the stream.
 
@@ -540,7 +535,6 @@ A listener function for events emitted by the `StreamReader`.
 Listener for the `data` event.
 
 - **Type Parameter:**
-
   - `O`: The type of data being read.
 
 - **Parameters:**
@@ -553,7 +547,6 @@ Listener for the `data` event.
 Listener for the `close` event.
 
 - **Type Parameter:**
-
   - `O`: The type of data being read.
 
 - **Parameters:**
@@ -596,7 +589,7 @@ A generator that produces chunks of data asynchronously. It can be either a regu
 
 ### Development
 
-#### Install depenendencies
+#### Install dependencies
 
 ```bash
 npm install
@@ -618,7 +611,7 @@ pnpm build
 
 #### [ESLint](https://www.npmjs.com/package/eslint)
 
-warnings / errors check.
+Run warnings and errors checks.
 
 ```bash
 pnpm lint
