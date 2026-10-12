@@ -1,434 +1,375 @@
-import { Exception } from '@alessiofrittoli/exception'
-import { ErrorCode } from '@alessiofrittoli/exception/code'
-
-import { StreamReader } from '@/index'
 import type {
 	OnCloseEventListener,
 	OnErrorEventListener,
 	OnDataEventListener,
-	OnAbortEventListener
+	OnAbortEventListener,
 } from '@/types'
+import { describe, afterEach, it, expect, vi, beforeEach } from 'vitest'
+import { ErrorCode } from '@alessiofrittoli/exception/code'
+import { Exception } from '@alessiofrittoli/exception'
+import { StreamReader } from '@/index'
 
-const sleep = ( ms: number ) => new Promise<void>( resolve => setTimeout( resolve, ms ) )
+const sleep = (ms: number): Promise<void> => new Promise<void>(resolve => setTimeout(resolve, ms))
 
-describe( 'StreamReader', () => {
+describe('StreamReader', () => {
+	const errorChunk = new Exception('Test Error', { code: ErrorCode.QUOTA_REACHED })
+	const defaultChunks = ['data 1', 'data 2']
+	const erroredChunks = ['data 1', errorChunk, 'data 2']
 
-	const errorChunk	= new Exception( 'Test Error', { code: ErrorCode.QUOTA_REACHED } )
-	const defaultChunks = [ 'data 1', 'data 2' ]
-	const erroredChunks = [ 'data 1', errorChunk, 'data 2' ]
-	
-	const streamData = async (
-		{ writer, chunks }: {
-			writer: WritableStreamDefaultWriter<Buffer>
-			chunks?: ( string | Error )[]
-		}
-	) => {
+	const streamData = async ({
+		writer,
+		chunks,
+	}: {
+		writer: WritableStreamDefaultWriter<Buffer>
+		chunks?: (string | Error)[]
+	}): Promise<void> => {
 		chunks ||= defaultChunks
-		for await ( const chunk of chunks ) {
-			if ( chunk instanceof Error ) throw chunk
-			await writer.write( Buffer.from( chunk ) )
-			await sleep( 50 )
+		for await (const chunk of chunks) {
+			if (chunk instanceof Error) throw chunk
+			await writer.write(Buffer.from(chunk))
+
+			const sleepTimeout = sleep(50)
+			vi.advanceTimersByTime(50)
+			await sleepTimeout
 		}
 		await writer.close()
 		writer.releaseLock()
 	}
 
-	afterEach( () => {
-		jest.restoreAllMocks()
-	} )
+	beforeEach(() => {
+		vi.useFakeTimers()
+	})
 
+	afterEach(() => {
+		vi.clearAllTimers().useRealTimers().resetAllMocks()
+	})
 
-	it( 'emit \'data\' Event when chunk is received', async () => {
+	it("emit 'data' Event when chunk is received", async () => {
+		const stream = new TransformStream<Buffer, Buffer>()
+		const writer = stream.writable.getWriter()
+		const reader = new StreamReader(stream.readable)
 
-		const stream	= new TransformStream<Buffer, Buffer>()
-		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader( stream.readable )
+		streamData({ writer })
 
-		streamData( { writer } )
-
-		const onRead: OnDataEventListener<Buffer> = jest.fn()
-		reader.on( 'data', onRead )
+		const onRead: OnDataEventListener<Buffer> = vi.fn()
+		reader.on('data', onRead)
 		await reader.read()
-		
-		expect( onRead ).toHaveBeenCalledTimes( 2 )
-		expect( onRead ).toHaveBeenCalledWith( expect.any( Buffer ) )
 
-	} )
+		expect(onRead).toHaveBeenCalledTimes(2)
+		expect(onRead).toHaveBeenCalledWith(expect.any(Buffer))
+	})
 
-
-	it( 'allows chunk by chunk transformation', async () => {
-
-		const stream	= new TransformStream<Buffer, Buffer>()
-		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader<Buffer, string>( stream.readable, {
+	it('allows chunk by chunk transformation', async () => {
+		const stream = new TransformStream<Buffer, Buffer>()
+		const writer = stream.writable.getWriter()
+		const reader = new StreamReader<Buffer, string>(stream.readable, {
 			transform: String,
-		} )
+		})
 
-		streamData( { writer } )
+		streamData({ writer })
 
-		reader.on( 'data', chunk => {
+		reader.on('data', chunk => {
 			// expect `StreamReader.on( 'data' ) to received transformed chunks.
-			expect( typeof chunk ).toBe( 'string' )
-		} )
+			expect(typeof chunk).toBe('string')
+		})
 
 		const dataRead = reader.read()
 
-		await expect( dataRead ).resolves.toBeInstanceOf( Array )
-		
-		const chunks = ( await dataRead ).map( chunk => {
-			expect( typeof chunk ).toBe( 'string' )
+		await expect(dataRead).resolves.toBeInstanceOf(Array)
+
+		const chunks = (await dataRead).map(chunk => {
+			expect(typeof chunk).toBe('string')
 			return chunk
-		} )
-		expect( chunks ).toEqual( defaultChunks )
+		})
+		expect(chunks).toEqual(defaultChunks)
+	})
 
-	} )
+	it("emit 'close' Event when stream writer get closed", async () => {
+		const stream = new TransformStream<Buffer, Buffer>()
+		const writer = stream.writable.getWriter()
+		const reader = new StreamReader(stream.readable)
 
+		streamData({ writer })
 
-	it( 'emit \'close\' Event when stream writer get closed', async () => {
-
-		const stream	= new TransformStream<Buffer, Buffer>()
-		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader( stream.readable )
-
-		streamData( { writer } )
-	
-		const onClose: OnCloseEventListener<Buffer> = jest.fn()
-		reader.on( 'close', onClose )
-		
-		await reader.read()
-
-		expect( onClose ).toHaveBeenCalledTimes( 1 )
-		expect( onClose ).toHaveBeenCalledWith( expect.any( Array ) )
-
-	} )
-
-
-	it( 'skips \'close\' when already closed', async () => {
-
-		const stream	= new TransformStream<Buffer, Buffer>()
-		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader( stream.readable )
-
-		streamData( { writer } )
-	
-		const onClose: OnCloseEventListener = jest.fn()
-		reader.on( 'close', onClose )
+		const onClose: OnCloseEventListener<Buffer> = vi.fn()
+		reader.on('close', onClose)
 
 		await reader.read()
 
-		reader[ 'close' ]()
-		reader[ 'close' ]()
+		expect(onClose).toHaveBeenCalledTimes(1)
+		expect(onClose).toHaveBeenCalledWith(expect.any(Array))
+	})
 
-		expect( onClose ).toHaveBeenCalledTimes( 1 )
-		expect( onClose ).toHaveBeenCalledWith( expect.any( Array ) )
+	it("skips 'close' when already closed", async () => {
+		const stream = new TransformStream<Buffer, Buffer>()
+		const writer = stream.writable.getWriter()
+		const reader = new StreamReader(stream.readable)
 
-	} )
+		streamData({ writer })
 
-
-	it( 'removes \'data\' and \'close\' listeners on close', async () => {
-
-		const stream	= new TransformStream<Buffer, Buffer>()
-		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader( stream.readable )
-
-		streamData( { writer } )
-	
-		const onRead: OnDataEventListener<Buffer> = jest.fn()
-		const onClose: OnCloseEventListener<Buffer> = jest.fn()
-		reader.on( 'data', onRead )
-		reader.on( 'close', onClose )
-		
-		await reader.read()
-	
-		expect( reader.listenerCount( 'data' ) ).toBe( 0 )
-		expect( reader.listenerCount( 'close' ) ).toBe( 0 )
-
-	} )
-
-
-	it( 'emit \'error\' Event when an Error occures', async () => {
-
-		const stream	= new TransformStream<Buffer, Buffer>()
-		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader( stream.readable )
-
-		streamData( { writer, chunks: erroredChunks } )
-			.catch( error => {
-				writer.abort( error )
-			} )
-		
-		const onError: OnErrorEventListener = jest.fn()
-		reader.on( 'error', onError )
-		
-		await reader.read()
-		expect( onError ).toHaveBeenCalledTimes( 1 )
-
-	} )
-
-
-	it( 'throws a new Error when no listener is attached to the \'error\' Event', async () => {
-
-		const stream	= new TransformStream<Buffer, Buffer>()
-		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader( stream.readable )
-
-		streamData( { writer } )
+		const onClose: OnCloseEventListener = vi.fn()
+		reader.on('close', onClose)
 
 		await reader.read()
-		await expect( () => reader.read() ) // call `StreamReader.read()` again to trigger error.
-			.rejects.toThrow( 'Invalid state: The reader is not attached to a stream' )
-		
-	} )
 
+		reader['close']()
+		reader['close']()
 
-	it( 'removes \'data\' and \'close\' listeners when Error occures', async () => {
+		expect(onClose).toHaveBeenCalledTimes(1)
+		expect(onClose).toHaveBeenCalledWith(expect.any(Array))
+	})
 
-		const stream	= new TransformStream<Buffer, Buffer>()
-		const writer	= stream.writable.getWriter()
-		const reader	= new StreamReader( stream.readable )
+	it("removes 'data' and 'close' listeners on close", async () => {
+		const stream = new TransformStream<Buffer, Buffer>()
+		const writer = stream.writable.getWriter()
+		const reader = new StreamReader(stream.readable)
 
-		streamData( { writer, chunks: erroredChunks } )
-			.catch( error => {
-				writer.abort( error )
-			} )
-	
-		const onClose: OnCloseEventListener = jest.fn()
-		reader.on( 'close', onClose )
-		
-		const onClose2: OnCloseEventListener<Buffer> = jest.fn()
-		reader.on( 'close', onClose2 )
+		streamData({ writer })
 
-		await expect( () => reader.read() ).rejects.toThrow()
+		const onRead: OnDataEventListener<Buffer> = vi.fn()
+		const onClose: OnCloseEventListener<Buffer> = vi.fn()
+		reader.on('data', onRead)
+		reader.on('close', onClose)
 
-		expect( onClose ).toHaveBeenCalledTimes( 0 )
-		expect( onClose2 ).toHaveBeenCalledTimes( 0 )
-		expect( reader.listenerCount( 'data' ) ).toBe( 0 )
-		expect( reader.listenerCount( 'close' ) ).toBe( 0 )
+		await reader.read()
 
-	} )
+		expect(reader.listenerCount('data')).toBe(0)
+		expect(reader.listenerCount('close')).toBe(0)
+	})
 
+	it("emit 'error' Event when an Error occures", async () => {
+		const stream = new TransformStream<Buffer, Buffer>()
+		const writer = stream.writable.getWriter()
+		const reader = new StreamReader(stream.readable)
 
-	describe( 'StreamReader.read()', () => {
+		streamData({ writer, chunks: erroredChunks }).catch(error => {
+			writer.abort(error)
+		})
 
-		it( 'resolves a Promise with an Array of streamed chunks', async () => {
+		const onError: OnErrorEventListener = vi.fn()
+		reader.on('error', onError)
 
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
-	
-			streamData( { writer } )
+		await reader.read()
+		expect(onError).toHaveBeenCalledTimes(1)
+	})
+
+	it("throws a new Error when no listener is attached to the 'error' Event", async () => {
+		const stream = new TransformStream<Buffer, Buffer>()
+		const writer = stream.writable.getWriter()
+		const reader = new StreamReader(stream.readable)
+
+		streamData({ writer })
+
+		await reader.read()
+		await expect(() => reader.read()) // call `StreamReader.read()` again to trigger error.
+			.rejects.toThrow('Invalid state: The reader is not attached to a stream')
+	})
+
+	it("removes 'data' and 'close' listeners when Error occures", async () => {
+		const stream = new TransformStream<Buffer, Buffer>()
+		const writer = stream.writable.getWriter()
+		const reader = new StreamReader(stream.readable)
+
+		streamData({ writer, chunks: erroredChunks }).catch(error => {
+			writer.abort(error)
+		})
+
+		const onClose: OnCloseEventListener = vi.fn()
+		reader.on('close', onClose)
+
+		const onClose2: OnCloseEventListener<Buffer> = vi.fn()
+		reader.on('close', onClose2)
+
+		await expect(() => reader.read()).rejects.toThrow()
+
+		expect(onClose).toHaveBeenCalledTimes(0)
+		expect(onClose2).toHaveBeenCalledTimes(0)
+		expect(reader.listenerCount('data')).toBe(0)
+		expect(reader.listenerCount('close')).toBe(0)
+	})
+
+	describe('StreamReader.read()', () => {
+		it('resolves a Promise with an Array of streamed chunks', async () => {
+			const stream = new TransformStream<Buffer, Buffer>()
+			const writer = stream.writable.getWriter()
+			const reader = new StreamReader(stream.readable)
+
+			streamData({ writer })
 
 			const dataRead = reader.read()
 
-			await expect( dataRead ).resolves.toBeInstanceOf( Array )
-			
-			const chunks = ( await dataRead ).map( chunk => {
-				expect( chunk ).toBeInstanceOf( Buffer )
+			await expect(dataRead).resolves.toBeInstanceOf(Array)
+
+			const chunks = (await dataRead).map(chunk => {
+				expect(chunk).toBeInstanceOf(Buffer)
 				return chunk.toString()
-			} )
+			})
 
-			expect( chunks ).toEqual( defaultChunks )
+			expect(chunks).toEqual(defaultChunks)
+		})
 
-		} )
+		it("doesn't collect in-memory chunks and returns void if `inMemory` option is set to `false`", async () => {
+			const stream = new TransformStream<Buffer, Buffer>()
+			const writer = stream.writable.getWriter()
+			const reader = new StreamReader(stream.readable, { inMemory: false })
 
+			streamData({ writer })
 
-		it( 'doesn\'t collect in-memory chunks and returns void if `inMemory` option is set to `false`', async () => {
+			expect(await reader.read()).toBeUndefined()
 
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable, { inMemory: false } )
-	
-			streamData( { writer } )
+			const stream2 = new TransformStream<Buffer, Buffer>()
+			const writer2 = stream2.writable.getWriter()
+			const reader2 = new StreamReader(stream2.readable, { inMemory: false })
 
-			expect( await reader.read() ).toBeUndefined()
+			streamData({ writer: writer2, chunks: erroredChunks }).catch(error => {
+				writer2.abort(error)
+			})
 
+			reader2.on('error', () => {})
+			expect(await reader2.read()).toBeUndefined()
+		})
+	})
 
-			const stream2	= new TransformStream<Buffer, Buffer>()
-			const writer2	= stream2.writable.getWriter()
-			const reader2	= new StreamReader( stream2.readable, { inMemory: false } )
-	
-			streamData( { writer: writer2, chunks: erroredChunks } )
-				.catch( error => {
-					writer2.abort( error )
-				} )
-			
-			reader2.on( 'error', () => {} )
-			expect( await reader2.read() ).toBeUndefined()
+	describe('StreamReader.abort()', () => {
+		it('allows to cancel the reader before stream get closed', async () => {
+			const stream = new TransformStream<Buffer, Buffer>()
+			const writer = stream.writable.getWriter()
+			const reader = new StreamReader(stream.readable)
 
-		} )
-		
-	} )
-	
-	
-	describe( 'StreamReader.abort()', () => {
+			const streamPromise = streamData({ writer })
 
-		it( 'allows to cancel the reader before stream get closed', async () => {
+			reader.on('data', () => {
+				reader.abort('User aborted the data reading.')
+			})
 
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
-			
-			const streamPromise = streamData( { writer } )
-			
-			reader.on( 'data', () => {
-				reader.abort( 'User aborted the data reading.' )
-			} )
-			
 			const dataRead = reader.read()
 
-			const finalChunks = (
-				( await dataRead )
-					.map( chunk => Buffer.from( chunk ).toString() )
+			const finalChunks = (await dataRead).map(chunk => Buffer.from(chunk).toString())
+
+			expect(finalChunks).toEqual([defaultChunks.at(0)])
+			await expect(() => streamPromise).rejects.toThrow(
+				expect.objectContaining({
+					message: 'User aborted the data reading.',
+					code: ErrorCode.ABORT,
+				}),
 			)
-			
-			expect( finalChunks ).toEqual( [ defaultChunks.at( 0 ) ] )
-			await expect( () => streamPromise )
-				.rejects.toThrow(
-					expect.objectContaining( {
-						message	: 'User aborted the data reading.',
-						code	: ErrorCode.ABORT,
-					} )
-				)
+		})
 
-		} )
+		it("emit 'abort' Event when the reader get cancelled", async () => {
+			const stream = new TransformStream<Buffer, Buffer>()
+			const writer = stream.writable.getWriter()
+			const reader = new StreamReader(stream.readable)
 
-		
-		it( 'emit \'abort\' Event when the reader get cancelled', async () => {
+			streamData({ writer }).catch(() => {
+				writer.releaseLock()
+			})
 
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
+			const onAbort: OnAbortEventListener = vi.fn()
+			reader.on('abort', onAbort)
 
+			reader.on('data', () => {
+				reader.abort('User aborted the data reading.')
+			})
 
-			streamData( { writer } )
-				.catch( () => {					
-					writer.releaseLock()
-				} )
-
-			const onAbort: OnAbortEventListener = jest.fn()
-			reader.on( 'abort', onAbort )
-			
-			reader.on( 'data', () => {
-				reader.abort( 'User aborted the data reading.' )
-			} )
-			
 			await reader.read()
 
-			expect( onAbort ).toHaveBeenCalledTimes( 1 )
-			expect( onAbort )
-				.toHaveBeenCalledWith( expect.objectContaining( {
-					message	: 'User aborted the data reading.',
-					code	: ErrorCode.ABORT,
-				} ) )
+			expect(onAbort).toHaveBeenCalledTimes(1)
+			expect(onAbort).toHaveBeenCalledWith(
+				expect.objectContaining({
+					message: 'User aborted the data reading.',
+					code: ErrorCode.ABORT,
+				}),
+			)
+		})
 
-		} )
-
-
-		it( 'cancel the reader with a default reason message', async () => {
-
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
-			const abortObj	= {
-				message	: 'Streming reader aborted.',
-				code	: ErrorCode.ABORT,
+		it('cancel the reader with a default reason message', async () => {
+			const stream = new TransformStream<Buffer, Buffer>()
+			const writer = stream.writable.getWriter()
+			const reader = new StreamReader(stream.readable)
+			const abortObj = {
+				message: 'Streming reader aborted.',
+				code: ErrorCode.ABORT,
 			}
 
-			const streamPromise = streamData( { writer } )
+			const streamPromise = streamData({ writer })
 
-			const onAbort: OnAbortEventListener = jest.fn()
-			reader.on( 'abort', onAbort )
-			
-			reader.on( 'data', () => reader.abort() )
-			
+			const onAbort: OnAbortEventListener = vi.fn()
+			reader.on('abort', onAbort)
+
+			reader.on('data', () => reader.abort())
+
 			await reader.read()
-			await expect( () => streamPromise )
-				.rejects.toThrow(
-					expect.objectContaining( abortObj )
-				)
-			
-			expect( onAbort )
-				.toHaveBeenCalledWith( expect.objectContaining( abortObj ) )
+			await expect(() => streamPromise).rejects.toThrow(expect.objectContaining(abortObj))
 
-		} )
-		
-		
-		it( 'accepts custom AbortError options', async () => {
-			
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
-			const abortObj	= {
-				message	: 'Custom reason.',
-				code	: ErrorCode.EXPIRED,
+			expect(onAbort).toHaveBeenCalledWith(expect.objectContaining(abortObj))
+		})
+
+		it('accepts custom AbortError options', async () => {
+			const stream = new TransformStream<Buffer, Buffer>()
+			const writer = stream.writable.getWriter()
+			const reader = new StreamReader(stream.readable)
+			const abortObj = {
+				message: 'Custom reason.',
+				code: ErrorCode.EXPIRED,
 			}
-		
-			const streamPromise = streamData( { writer } )
-		
-			const onAbort: OnAbortEventListener = jest.fn()
-			
-			reader.on( 'abort', onAbort )
-			reader.on( 'data', () => (
-				reader.abort( 'Custom reason.', { code: ErrorCode.EXPIRED } )
-			) )
-			
+
+			const streamPromise = streamData({ writer })
+
+			const onAbort: OnAbortEventListener = vi.fn()
+
+			reader.on('abort', onAbort)
+			reader.on('data', () => reader.abort('Custom reason.', { code: ErrorCode.EXPIRED }))
+
 			await reader.read()
-			await expect( () => streamPromise )
-				.rejects.toThrow( expect.objectContaining( abortObj ) )
-	
-			expect( onAbort )
-				.toHaveBeenCalledWith( expect.objectContaining( abortObj ) )
-		
-		} )
+			await expect(() => streamPromise).rejects.toThrow(expect.objectContaining(abortObj))
 
+			expect(onAbort).toHaveBeenCalledWith(expect.objectContaining(abortObj))
+		})
 
-		it( 'skips abort if already closed', async () => {
+		it('skips abort if already closed', async () => {
+			const stream = new TransformStream<Buffer, Buffer>()
+			const writer = stream.writable.getWriter()
+			const reader = new StreamReader(stream.readable)
 
-			const stream	= new TransformStream<Buffer, Buffer>()
-			const writer	= stream.writable.getWriter()
-			const reader	= new StreamReader( stream.readable )
+			streamData({ writer })
 
-			streamData( { writer } )
+			const onAbort: OnAbortEventListener = vi.fn()
+			reader.on('abort', onAbort)
 
-			const onAbort: OnAbortEventListener = jest.fn()
-			reader.on( 'abort', onAbort )
-						
 			await reader.read()
 			await reader.abort()
-			expect( onAbort ).toHaveBeenCalledTimes( 0 )
+			expect(onAbort).toHaveBeenCalledTimes(0)
+		})
+	})
 
-		} )
+	describe('StreamReader.generatorToReadableStream()', () => {
+		it('converts a Generator into a ReadableStream', async () => {
+			async function* makeGenerator(
+				encoder: TextEncoder,
+			): AsyncGenerator<Uint8Array<ArrayBuffer>, void, unknown> {
+				yield encoder.encode(defaultChunks.at(0))
 
-	} )
+				const sleepTimeout = sleep(500)
+				vi.advanceTimersByTime(500)
+				await sleepTimeout
 
-	
-	describe( 'StreamReader.generatorToReadableStream()', () => {
-
-		it( 'converts a Generator into a ReadableStream', async () => {
-			async function* makeGenerator( encoder: TextEncoder )
-			{
-				yield encoder.encode( defaultChunks.at( 0 ) )
-				await sleep( 500 )
-				yield encoder.encode( defaultChunks.at( 1 ) )
+				yield encoder.encode(defaultChunks.at(1))
 			}
 
-			const encoder	= new TextEncoder()
-			const iterator	= makeGenerator( encoder )
-			const stream	= StreamReader.generatorToReadableStream( iterator )
-			const reader	= new StreamReader( stream )
-			const dataRead	= reader.read()
+			const encoder = new TextEncoder()
+			const iterator = makeGenerator(encoder)
+			const stream = StreamReader.generatorToReadableStream(iterator)
+			const reader = new StreamReader(stream)
+			const dataRead = reader.read()
 
-			expect( stream ).toBeInstanceOf( ReadableStream )
-			await expect( dataRead ).resolves.toBeInstanceOf( Array )
-			
-			const chunks = ( await dataRead ).map( chunk => {
-				expect( chunk ).toBeInstanceOf( Uint8Array )
-				return Buffer.from( chunk ).toString()
-			} )
-			expect( chunks ).toEqual( defaultChunks )
+			expect(stream).toBeInstanceOf(ReadableStream)
+			await expect(dataRead).resolves.toBeInstanceOf(Array)
 
-		} )
-
-	} )
-
-} )
+			const chunks = (await dataRead).map(chunk => {
+				expect(chunk).toBeInstanceOf(Uint8Array)
+				return Buffer.from(chunk).toString()
+			})
+			expect(chunks).toEqual(defaultChunks)
+		})
+	})
+})
