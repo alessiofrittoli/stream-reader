@@ -9,17 +9,17 @@ importers:
   .:
     devDependencies:
       '@alessiofrittoli/event-emitter':
-        specifier: ^1.6.0
-        version: 1.6.0
+        specifier: ^1.7.0
+        version: 1.7.0
       '@alessiofrittoli/exception':
-        specifier: ^3.5.0
-        version: 3.5.0
+        specifier: ^4.1.0
+        version: 4.1.0
       '@alessiofrittoli/math-utils':
-        specifier: ^1.17.0
-        version: 1.17.0
+        specifier: ^2.0.0
+        version: 2.0.0
       '@alessiofrittoli/node-scripts':
         specifier: ^4.0.0
-        version: 4.0.0(@alessiofrittoli/abort-controller@0.1.0)(@alessiofrittoli/exception@3.5.0)(@alessiofrittoli/package-configs@1.6.0(oxlint@1.87.0)(prettier-plugin-sort-imports@1.8.11(typescript@6.0.3))(prettier@3.9.10)(tsdown@0.23.1(typescript@6.0.3))(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.27.0))(vitest@5.0.3))(@alessiofrittoli/web-utils@2.3.0)
+        version: 4.0.0(@alessiofrittoli/abort-controller@0.1.0)(@alessiofrittoli/exception@4.1.0)(@alessiofrittoli/package-configs@1.6.0(oxlint@1.87.0)(prettier-plugin-sort-imports@1.8.11(typescript@6.0.3))(prettier@3.9.10)(tsdown@0.23.1(typescript@6.0.3))(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.27.0))(vitest@5.0.3))(@alessiofrittoli/web-utils@2.3.0)
       '@alessiofrittoli/package-configs':
         specifier: ^1.6.0
         version: 1.6.0(oxlint@1.87.0)(prettier-plugin-sort-imports@1.8.11(typescript@6.0.3))(prettier@3.9.10)(tsdown@0.23.1(typescript@6.0.3))(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.27.0))(vitest@5.0.3)
@@ -71,8 +71,16 @@ packages:
   '@alessiofrittoli/event-emitter@1.6.0':
     resolution: {integrity: sha512-Fu1VZGUbxjZfhwUzoAia0iXQwbjSID17VcsASjXFua1+oxqKAjBofayLZ8BMRGsGwHNeyycax0fSwZd2SI6uzA==}
 
+  '@alessiofrittoli/event-emitter@1.7.0':
+    resolution: {integrity: sha512-LPLN0fTjT5xlXn4C8S1yMiMk7seHBbiR7kwX4kynDewwCwwOpVR7BoF7cTtVwhTzDjfJBiu19X1lKiUAbcmk8Q==}
+    engines: {node: '>=24.15.0', pnpm: '>=11.27.1'}
+
   '@alessiofrittoli/exception@3.5.0':
     resolution: {integrity: sha512-8WGEiJCr9zFgPzXvTl5Sgh+e1bBldGfMma4EGIa+yLeHpgmsS+zQ8d7woh2YU/yN65DoKGHPKTArWLAvnEwANg==}
+
+  '@alessiofrittoli/exception@4.1.0':
+    resolution: {integrity: sha512-qYShREQT4vcw2n9lDhxsARBOxI5jc8SFl9L9JyRU2dghTgXPNz0M4fLX3dC1to67YQQpv+JaZlCndz24CoIuag==}
+    engines: {node: '>=24.15.0', pnpm: '>=11.27.1'}
 
   '@alessiofrittoli/fetcher@1.1.0':
     resolution: {integrity: sha512-JidJxeL8AMm6k2g6AcG368nQmqskh7Hz7CfYnJEBg+BP03MuQQ0MBQpgXCLeyTFkGdtlrY6sMOBP6vk3xG/q+g==}
@@ -1385,7 +1393,11 @@ snapshots:
 
   '@alessiofrittoli/event-emitter@1.6.0': {}
 
+  '@alessiofrittoli/event-emitter@1.7.0': {}
+
   '@alessiofrittoli/exception@3.5.0': {}
+
+  '@alessiofrittoli/exception@4.1.0': {}
 
   '@alessiofrittoli/fetcher@1.1.0':
     dependencies:
@@ -1419,10 +1431,10 @@ snapshots:
       '@alessiofrittoli/event-emitter': 1.6.0
       '@alessiofrittoli/exception': 3.5.0
 
-  '@alessiofrittoli/node-scripts@4.0.0(@alessiofrittoli/abort-controller@0.1.0)(@alessiofrittoli/exception@3.5.0)(@alessiofrittoli/package-configs@1.6.0(oxlint@1.87.0)(prettier-plugin-sort-imports@1.8.11(typescript@6.0.3))(prettier@3.9.10)(tsdown@0.23.1(typescript@6.0.3))(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.27.0))(vitest@5.0.3))(@alessiofrittoli/web-utils@2.3.0)':
+  '@alessiofrittoli/node-scripts@4.0.0(@alessiofrittoli/abort-controller@0.1.0)(@alessiofrittoli/exception@4.1.0)(@alessiofrittoli/package-configs@1.6.0(oxlint@1.87.0)(prettier-plugin-sort-imports@1.8.11(typescript@6.0.3))(prettier@3.9.10)(tsdown@0.23.1(typescript@6.0.3))(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.27.0))(vitest@5.0.3))(@alessiofrittoli/web-utils@2.3.0)':
     dependencies:
       '@alessiofrittoli/abort-controller': 0.1.0
-      '@alessiofrittoli/exception': 3.5.0
+      '@alessiofrittoli/exception': 4.1.0
       '@alessiofrittoli/package-configs': 1.6.0(oxlint@1.87.0)(prettier-plugin-sort-imports@1.8.11(typescript@6.0.3))(prettier@3.9.10)(tsdown@0.23.1(typescript@6.0.3))(typescript@6.0.3)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.27.0))(vitest@5.0.3)
       '@alessiofrittoli/web-utils': 2.3.0
 

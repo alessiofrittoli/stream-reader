@@ -143,12 +143,12 @@ export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> e
 	 */
 	public async abort(
 		reason: string = 'Streming reader aborted.',
-		options?: AbortErrorOptions,
+		options?: Omit<AbortErrorOptions, 'message'>,
 	): Promise<this> {
 		if (this.closed) return this
 
 		this.closed = true
-		const exception = new AbortError(reason, options)
+		const exception = new AbortError({ message: reason, ...options })
 
 		this.emit('abort', exception)
 
