@@ -51,7 +51,7 @@ export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> e
 	 */
 	protected _closed: boolean
 
-	private set closed(value: typeof this._closed) {
+	protected set closed(value: typeof this._closed) {
 		this._closed = value
 	}
 
