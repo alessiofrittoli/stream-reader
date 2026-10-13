@@ -1,28 +1,60 @@
-# Stream Reader 📚
+<h1 align="center">Stream Reader 📚</h1>
+<h2 align="center">
+  Easly read pushed data from a Stream
+</h2>
+<p align="center">
+The <code>StreamReader</code> class is a utility for reading data from a <code>ReadableStream</code> in a structured and event-driven manner. It extends the <code>EventEmitter</code> class, providing events for stream lifecycle management and error handling.
+</p>
+<p align="center">
+  <a href="https://npmjs.org/package/@alessiofrittoli/stream-reader">
+    <img src="https://img.shields.io/npm/v/@alessiofrittoli/stream-reader" alt="Latest version"/>
+  </a>
+  <a href="https://coveralls.io/github/alessiofrittoli/exception">
+    <img src="https://coveralls.io/repos/github/alessiofrittoli/exception/badge.svg" alt="Test coverage"/>
+  </a>
+  <a href="https://socket.dev/npm/package/@alessiofrittoli/stream-reader/overview">
+    <img src="https://socket.dev/api/badge/npm/package/@alessiofrittoli/stream-reader" alt="Socket Security score"/>
+  </a>
+  <a href="https://npmjs.org/package/@alessiofrittoli/stream-reader">
+    <img src="https://img.shields.io/npm/dm/@alessiofrittoli/stream-reader.svg" alt="npm downloads"/>
+  </a>
+  <a href="https://bundlephobia.com/package/@alessiofrittoli/stream-reader">
+    <img src="https://badgen.net/bundlephobia/dependency-count/@alessiofrittoli/stream-reader" alt="Dependencies"/>
+  </a>
+  <a href="https://libraries.io/npm/%40alessiofrittoli%2Fexception">
+    <img src="https://img.shields.io/librariesio/release/npm/@alessiofrittoli/stream-reader" alt="Dependencies status"/>
+  </a>
+</p>
+<p align="center">
+  <a href="https://bundlephobia.com/package/@alessiofrittoli/stream-reader">
+    <img src="https://badgen.net/bundlephobia/min/@alessiofrittoli/stream-reader" alt="minified"/>
+  </a>
+  <a href="https://bundlephobia.com/package/@alessiofrittoli/stream-reader">
+    <img src="https://badgen.net/bundlephobia/minzip/@alessiofrittoli/stream-reader" alt="minizipped"/>
+  </a>
+  <a href="https://bundlephobia.com/package/@alessiofrittoli/stream-reader">
+    <img src="https://badgen.net/bundlephobia/tree-shaking/@alessiofrittoli/stream-reader" alt="Tree shakable"/>
+  </a>
+</p>
+<p align="center">
+  <a href="https://github.com/sponsors/alessiofrittoli">
+    <img src="https://img.shields.io/static/v1?label=Fund%20this%20package&message=%E2%9D%A4&logo=GitHub&color=%23DB61A2" alt="Fund this package"/>
+  </a>
+</p>
 
-[![NPM Latest Version][version-badge]][npm-url] [![Coverage Status][coverage-badge]][coverage-url] [![Socket Status][socket-badge]][socket-url] [![NPM Monthly Downloads][downloads-badge]][npm-url] [![Dependencies][deps-badge]][deps-url]
-
-[![GitHub Sponsor][sponsor-badge]][sponsor-url]
-
-[version-badge]: https://img.shields.io/npm/v/%40alessiofrittoli%2Fstream-reader
-[npm-url]: https://npmjs.org/package/%40alessiofrittoli%2Fstream-reader
-[coverage-badge]: https://coveralls.io/repos/github/alessiofrittoli/stream-reader/badge.svg
-[coverage-url]: https://coveralls.io/github/alessiofrittoli/stream-reader
-[socket-badge]: https://socket.dev/api/badge/npm/package/@alessiofrittoli/stream-reader
-[socket-url]: https://socket.dev/npm/package/@alessiofrittoli/stream-reader/overview
-[downloads-badge]: https://img.shields.io/npm/dm/%40alessiofrittoli%2Fstream-reader.svg
-[deps-badge]: https://img.shields.io/librariesio/release/npm/%40alessiofrittoli%2Fstream-reader
-[deps-url]: https://libraries.io/npm/%40alessiofrittoli%2Fstream-reader
 [sponsor-badge]: https://img.shields.io/static/v1?label=Fund%20this%20package&message=%E2%9D%A4&logo=GitHub&color=%23DB61A2
 [sponsor-url]: https://github.com/sponsors/alessiofrittoli
 
-## Easly read pushed data from a Stream
-
-The `StreamReader` class is a utility for reading data from a `ReadableStream` in a structured and event-driven manner. It extends the `EventEmitter` class, providing events for stream lifecycle management and error handling.
-
-### Table of Contents
+### Table of Content
 
 - [Getting started](#getting-started)
+- [Development](#development)
+  - [Local development](#local-development)
+  - [Production build](#production-build)
+  - [Unit tests](#unit-tests)
+    - [Run tests with coverage](#run-tests-with-coverage)
+  - [Contributing](#contributing)
+  - [Security](#security)
 - [API Reference](#api-reference)
   - [StreamReader Class API Reference](#streamreader-class-api-reference)
     - [Constructor](#constructor)
@@ -33,13 +65,6 @@ The `StreamReader` class is a utility for reading data from a `ReadableStream` i
     - [Usage](#usage)
     - [Error handling](#error-handling)
   - [Types API Reference](#types-api-reference)
-- [Development](#development)
-  - [Install dependencies](#install-dependencies)
-  - [Build the source code](#build-the-source-code)
-  - [ESLint](#eslint)
-  - [Jest](#jest)
-- [Contributing](#contributing)
-- [Security](#security)
 - [Credits](#made-with-)
 
 ---
@@ -57,6 +82,84 @@ or using `pnpm`
 ```bash
 pnpm i @alessiofrittoli/stream-reader
 ```
+
+---
+
+### Development
+
+Run the following to start development
+
+```shell
+nvm use
+
+pnpm i
+```
+
+#### Local development
+
+Run the following
+
+```shell
+pnpm dev
+```
+
+This will generate unminified output code, sourcemaps and will enable source file watcher.
+
+---
+
+#### Production build
+
+Run the following to create a local production build
+
+```shell
+pnpm build
+```
+
+This will generate minified output code without sourcemaps.
+
+---
+
+#### Unit tests
+
+Run all the defined test suites by running the following:
+
+```shell
+# Run tests and watch file changes.
+pnpm test:watch
+
+# Run tests in a CI environment.
+pnpm test:ci
+```
+
+---
+
+##### Run tests with coverage
+
+An HTTP server is then started to serve coverage files from `./coverage` folder.
+
+⚠️ You may see a blank page the first time you run this command. Simply refresh the browser to see the updates.
+
+```shell
+pnpm test:coverage:serve
+```
+
+---
+
+#### Contributing
+
+Contributions are truly welcome!
+
+Please refer to the [Contributing Doc](./CONTRIBUTING.md) for more information on how to start contributing to this project.
+
+Help keep this project up to date with [GitHub Sponsor][sponsor-url].
+
+[![GitHub Sponsor][sponsor-badge]][sponsor-url]
+
+---
+
+#### Security
+
+If you believe you have found a security vulnerability, we encourage you to **_responsibly disclose this and NOT open a public issue_**. We will investigate all legitimate reports. Email `security@alessiofrittoli.it` to disclose any security vulnerabilities.
 
 ---
 
@@ -586,78 +689,6 @@ A generator that produces chunks of data asynchronously. It can be either a regu
   - `T`: The type of data produced by the generator.
 
 ---
-
-### Development
-
-#### Install dependencies
-
-```bash
-npm install
-```
-
-or using `pnpm`
-
-```bash
-pnpm i
-```
-
-#### Build the source code
-
-Run the following command to test and build code for distribution.
-
-```bash
-pnpm build
-```
-
-#### [ESLint](https://www.npmjs.com/package/eslint)
-
-Run warnings and errors checks.
-
-```bash
-pnpm lint
-```
-
-#### [Jest](https://npmjs.com/package/jest)
-
-Run all the defined test suites by running the following:
-
-```bash
-# Run tests and watch file changes.
-pnpm test:watch
-
-# Run tests in a CI environment.
-pnpm test:ci
-```
-
-- See [`package.json`](./package.json) file scripts for more info.
-
-Run tests with coverage.
-
-An HTTP server is then started to serve coverage files from `./coverage` folder.
-
-⚠️ You may see a blank page the first time you run this command. Simply refresh the browser to see the updates.
-
-```bash
-test:coverage:serve
-```
-
----
-
-### Contributing
-
-Contributions are truly welcome!
-
-Please refer to the [Contributing Doc](./CONTRIBUTING.md) for more information on how to start contributing to this project.
-
-Help keep this project up to date with [GitHub Sponsor][sponsor-url].
-
-[![GitHub Sponsor][sponsor-badge]][sponsor-url]
-
----
-
-### Security
-
-If you believe you have found a security vulnerability, we encourage you to **_responsibly disclose this and NOT open a public issue_**. We will investigate all legitimate reports. Email `security@alessiofrittoli.it` to disclose any security vulnerabilities.
 
 ### Made with ☕
 
