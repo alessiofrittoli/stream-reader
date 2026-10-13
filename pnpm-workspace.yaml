@@ -2,3 +2,5 @@ allowBuilds:
   '@alessiofrittoli/fetcher': false
   '@alessiofrittoli/type-utils': false
   esbuild: true
+minimumReleaseAgeExclude:
+  - '@alessiofrittoli/*'
