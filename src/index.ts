@@ -33,21 +33,42 @@ export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> e
 	 * The reader obtained from the input `ReadableStream`.
 	 *
 	 */
-	public reader: ReadableStreamDefaultReader<I>
+	public readonly reader: ReadableStreamDefaultReader<I>
+	/**
+	 * Indicates whether in-memory data chunk collection is enabled.
+	 *
+	 */
+	private inMemory: NonNullable<Options<I, O, InMemory>['inMemory']>
+	/**
+	 * The external callback responsible for data chunk transformations.
+	 *
+	 */
+	private transform: Options<I, O, InMemory>['transform']
+
 	/**
 	 * Indicates whether the stream has been closed.
 	 *
 	 */
-	public closed: boolean
+	protected _closed: boolean
+
+	private set closed(value: typeof this._closed) {
+		this._closed = value
+	}
+
+	/**
+	 * Indicates whether the stream has been closed.
+	 *
+	 */
+	public get closed(): typeof this._closed {
+		return this._closed
+	}
+
 	/**
 	 * Stores the chunks of data that have been read.
 	 *
 	 * @private
 	 */
 	private chunks: ReadChunks<O>
-
-	private inMemory: NonNullable<Options<I, O, InMemory>['inMemory']>
-	private transform: Options<I, O, InMemory>['transform']
 
 	/**
 	 * Creates an instance of `StreamReader`.
@@ -61,7 +82,7 @@ export class StreamReader<I = unknown, O = I, InMemory extends boolean = true> e
 		this.inMemory = (options?.inMemory ?? true) as InMemory
 		this.transform = options?.transform
 		this.reader = stream.getReader()
-		this.closed = false
+		this._closed = false
 		this.chunks = []
 	}
 
