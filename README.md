@@ -9,8 +9,8 @@ The <code>StreamReader</code> class is a utility for reading data from a <code>R
   <a href="https://npmjs.org/package/@alessiofrittoli/stream-reader">
     <img src="https://img.shields.io/npm/v/@alessiofrittoli/stream-reader" alt="Latest version"/>
   </a>
-  <a href="https://coveralls.io/github/alessiofrittoli/exception">
-    <img src="https://coveralls.io/repos/github/alessiofrittoli/exception/badge.svg" alt="Test coverage"/>
+  <a href="https://coveralls.io/github/alessiofrittoli/stream-reader">
+    <img src="https://coveralls.io/repos/github/alessiofrittoli/stream-reader/badge.svg" alt="Test coverage"/>
   </a>
   <a href="https://socket.dev/npm/package/@alessiofrittoli/stream-reader/overview">
     <img src="https://socket.dev/api/badge/npm/package/@alessiofrittoli/stream-reader" alt="Socket Security score"/>
@@ -21,7 +21,7 @@ The <code>StreamReader</code> class is a utility for reading data from a <code>R
   <a href="https://bundlephobia.com/package/@alessiofrittoli/stream-reader">
     <img src="https://badgen.net/bundlephobia/dependency-count/@alessiofrittoli/stream-reader" alt="Dependencies"/>
   </a>
-  <a href="https://libraries.io/npm/%40alessiofrittoli%2Fexception">
+  <a href="https://libraries.io/npm/%40alessiofrittoli%2Fstream-reader">
     <img src="https://img.shields.io/librariesio/release/npm/@alessiofrittoli/stream-reader" alt="Dependencies status"/>
   </a>
 </p>
