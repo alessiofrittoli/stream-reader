@@ -1,3 +1,4 @@
+// oxlint-disable typescript/no-floating-promises
 import type {
 	OnCloseEventListener,
 	OnErrorEventListener,
@@ -23,8 +24,10 @@ describe('StreamReader', () => {
 		writer: WritableStreamDefaultWriter<Buffer>
 		chunks?: (string | Error)[]
 	}): Promise<void> => {
+		// oxlint-disable-next-line no-param-reassign
 		chunks ||= defaultChunks
-		for await (const chunk of chunks) {
+
+		for (const chunk of chunks) {
 			if (chunk instanceof Error) throw chunk
 			await writer.write(Buffer.from(chunk))
 
